@@ -31,39 +31,7 @@
                           bg-color="green"
                           standout
                           bottom-slots
-                          v-model="qualification.planCareerId"
-                          label="อาชีพ"
-                          clearable
-                        >
-                          <template v-slot:prepend>
-                            <q-icon name="work_outline" />
-                          </template>
-                          <template v-slot:append>
-                            <q-icon name="favorite" />
-                          </template>
-                        </q-input>
-                      </div>
-                      <div class="col-md-6 col-xs-12 q-pa-md">
-                        <q-select
-                          color="green"
-                          v-model="qualification.planCareerId"
-                          :options="career.options"
-                          label="อาชีพที่ต้องการ"
-                        >
-                          <template v-slot:prepend>
-                            <q-icon name="flag_circle" />
-                          </template>
-                        </q-select>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-6 col-xs-12 q-pa-md">
-                        <q-input
-                          color="white"
-                          bg-color="green"
-                          standout
-                          bottom-slots
-                          v-model="qualification.skill"
+                          v-model="qualification.qualification_id"
                           label="คุณสมบัติที่กำหนด"
                           clearable
                         >
@@ -78,9 +46,63 @@
                       <div class="col-md-6 col-xs-12 q-pa-md">
                         <q-select
                           color="green"
-                          v-model="qualification.skill"
-                          :options="ca_qualification.options"
+                          v-model="qualification.qualification_id"
+                          :options="qa.options"
                           label="คุณสมบัติที่กำหนด"
+                          @new-value="createValue"
+                          use-input
+                          input-debounce="0"
+                          emit-value
+                          map-options
+                        >
+                          <!-- <template v-slot:prepend>
+                            <q-icon name="flag_circle" />
+                          </template> -->
+                          <template v-slot:option="scope">
+                            <q-item v-bind="scope.itemProps">
+                              <q-item-section avatar>
+                                <q-icon :name="scope.opt.icon" />
+                              </q-item-section>
+                              <q-item-section>
+                                <q-item-label>{{ scope.opt.label }}</q-item-label>
+                                <q-item-label caption>{{
+                                  scope.opt.description
+                                }}</q-item-label>
+                              </q-item-section>
+                            </q-item>
+                          </template>
+                        </q-select>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-6 col-xs-12 q-pa-md">
+                        <q-input
+                          color="white"
+                          bg-color="green"
+                          standout
+                          bottom-slots
+                          v-model="qualification.planCareerId"
+                          label="แผนอาชีพที่ต้องการกำหนดคุณสมบัติ"
+                          clearable
+                        >
+                          <template v-slot:prepend>
+                            <q-icon name="work_outline" />
+                          </template>
+                          <template v-slot:append>
+                            <q-icon name="favorite" />
+                          </template>
+                        </q-input>
+                      </div>
+                      <div class="col-md-6 col-xs-12 q-pa-md">
+                        <q-select
+                          color="green"
+                          use-input
+                          input-debounce="0"
+                          v-model="qualification.planCareerId"
+                          :options="career.options"
+                          label="แผนอาชีพที่ต้องการกำหนดคุณสมบัติ"
+                          emit-value
+                          map-options
                         >
                           <template v-slot:prepend>
                             <q-icon name="flag_circle" />
@@ -88,6 +110,7 @@
                         </q-select>
                       </div>
                     </div>
+
                     <div class="row">
                       <div class="col-md-6 col-xs-12 q-pa-md">
                         <q-input
@@ -150,13 +173,8 @@
                       </div>
                     </div>
                     <div class="row">
-                      <div class="col-md-6 col-xs-12 q-pa-md">
-                        <q-btn
-                          label="บันทึก"
-                          type="submit"
-                          color="primary"
-                          icon="save"
-                        />
+                      <div class="col-md-12 col-xs-12 q-pa-md row justify-center">
+                        <q-btn label="บันทึก" type="submit" color="primary" icon="save" />
                         <q-btn
                           label="ยกเลิก"
                           type="reset"
@@ -164,6 +182,20 @@
                           flat
                           class="q-ml-sm"
                           icon="clear"
+                        />
+                        <q-btn
+                          color="primary"
+                          no-caps
+                          flat
+                          icon="skip_previous"
+                          @click="onPrevious"
+                        />
+                        <q-btn
+                          color="primary"
+                          no-caps
+                          flat
+                          icon="skip_next"
+                          @click="onNext"
                         />
                       </div>
                     </div>
@@ -179,7 +211,7 @@
                             :filter="filter"
                             :loading="loading"
                           >
-                            <template v-slot:top-left>
+                            <!-- <template v-slot:top-left>
                               <div class="col-9">
                                 <q-toggle
                                   v-model="filterToggle.nice_to_have"
@@ -202,7 +234,7 @@
                                   label="Show All"
                                 />
                               </div>
-                            </template>
+                            </template> -->
                             <template v-slot:top-right>
                               <div class="col-9">
                                 <q-input
@@ -222,16 +254,17 @@
                               <q-td :props="props">
                                 <q-btn
                                   icon="mode_edit"
-                                  @click="onEdit(props.row)"
+                                  @click="editUser(props.row.qualificationId)"
                                 ></q-btn>
                                 <q-btn
                                   icon="delete"
-                                  @click="onDelete(props.row)"
+                                  @click="
+                                    onDelete(props.row.qualificationId, props.row.skill)
+                                  "
                                 ></q-btn>
                               </q-td>
                             </template>
                           </q-table>
-                          <div>{{ filter1 }}</div>
                         </div>
                       </div>
                     </div>
@@ -243,6 +276,12 @@
         </div>
       </q-page>
     </q-page-container>
+    <div>{{ filter1 }}</div>
+    <div>
+      {{ Plan_Career_ids }}
+      {{ careers1 }}
+      {{ career.options }}
+    </div>
   </q-layout>
   <!-- <div class="py-2">
     {{ qualifications_ }}
@@ -254,8 +293,7 @@
 
 <script>
 import axios from "axios";
-import { ref, onMounted } from "vue";
-
+// import { setFlagsFromString } from "v8";
 export default {
   name: "FormQualification",
   components: {},
@@ -268,13 +306,13 @@ export default {
       },
       search: "",
       message: "Form Qualification",
-      title: "คุณสมบัติของอาชีพ",
+      title: "คุณสมบัติของแผนอาชีพ",
       selected: "",
       qualifications: Array,
-      // qualifications_: Array,
-      employee_id: this.$store.getters.myMember_id,
+      emp_id1: "",
       careerPath: "",
       careers: Array,
+      careers1: Array,
       career_qualifications: Array,
       qualification: {
         qualificationId: "",
@@ -327,28 +365,100 @@ export default {
         ],
       },
       Plan_Career_ids: Array,
-      Name_Plan_Careers: Array,
-      career: {
-        options: [
-          {
-            label: this.Plan_Career_ids,
-            value: this.Name_Plan_Careers,
-          },
-        ],
-      },
+      career: { options: [] },
       ca_qualification_ids: Array,
       ca_qualifications: Array,
-      ca_qualification: {
-        options: [
-          {
-            label: this.Plan_Career_ids,
-            value: this.Name_Plan_Careers,
-          },
-        ],
+      qa: {
+        options: [],
       },
+      columns: [
+        {
+          name: "qualification_id",
+          required: true,
+          label: "รหัสคุณสมบัติ",
+          align: "center",
+          field: (row) => row.qualification_id,
+          format: (val) => `${val}`,
+          sortable: true,
+        },
+        {
+          name: "plan_career_id",
+          label: "รหัสแผนอาชีพ",
+          align: "center",
+          field: (row) => row.plan_career_id,
+          format: (val) => `${val}`,
+          sortable: true,
+        },
+        {
+          name: "career_id",
+          label: "รหัสอาชีพ",
+          align: "center",
+          field: (row) => row.Career_id,
+          format: (val) => `${val}`,
+          sortable: true,
+        },
+        {
+          name: "career",
+          label: "อาชีพ",
+          align: "center",
+          field: (row) => row.career,
+          format: (val) => `${val}`,
+          sortable: true,
+        },
+
+        {
+          name: "skill",
+          label: "คุณสมบัติ/ทักษะ",
+          field: (row) => row.skill,
+          format: (val) => `${val}`,
+        },
+        {
+          name: "level",
+          label: "ระดับ",
+          field: (row) => row.level,
+          format: (val) => `${val}`,
+        },
+        {
+          name: "goal",
+          label: "เป้าหมาย",
+          field: (row) => row.goal,
+          format: (val) => `${val}`,
+        },
+        { name: "actions", align: "center", label: "Action" },
+      ],
+      filter: "",
+      loading: true,
+      qualifications1: [],
     };
   },
   methods: {
+    createValue1(val, done) {
+      done(val, "add-unique");
+      console.log("new val:", val);
+    },
+    createValue(val, done) {
+      done(val, "add-unique");
+      console.log("val:", val);
+      if (confirm("คุณต้องการเพิ่มคุณสมบัติ [" + val + "] ใหม่หรือไม่ ?")) {
+        var self = this;
+        var emp_id1 = Number(this.$store.getters.myEmployee_id);
+        axios
+          .post("http://localhost/ICPScoreCard/api-qualification.php", {
+            action: "insert",
+            skill: val,
+            employee_id: emp_id1,
+          })
+          .then(function (response) {
+            console.log(response);
+            self.resetForm();
+            self.getUpdate();
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      }
+    },
+
     resetForm() {
       this.status = "บันทึก";
       this.isEdit = false;
@@ -358,36 +468,28 @@ export default {
       this.qualification.goal = "";
       this.qualification.isVisible = false;
     },
-    getAllUser() {
-      console.log(" แสดงข้อมูลทั้งหมด ");
-      var self = this;
-      axios
-        .post("http://localhost:85/ICPScoreCard/api-qualification.php", {
-          action: "getall",
-        })
-        .then(function (res) {
-          console.log(res);
-          self.qualifications = res.data;
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-    },
+
     getCareer() {
       console.log(" ข้อมูลอาชีพ ");
       var self = this;
+      var emp_id1 = Number(this.$store.getters.myEmployee_id);
+      console.log("getCareer1:", emp_id1);
       axios
-        .post("http://localhost:85/ICPScoreCard/api-career-qualification.php", {
+        .post("http://localhost/ICPScoreCard/api-career-qualification.php", {
           action: "getEmpCareer",
-          employee_id: this.employee_id,
+          employee_id: emp_id1,
         })
         .then(function (res) {
           self.careers = res.data;
-          console.log("careers:", self.careers);
-          self.Plan_Career_ids = res.data.map((item) => item.Plan_Career_id);
-          self.Name_Plan_Careers = res.data.map(
-            (item) => item.Name_Plan_Career
-          );
+          console.log("getCareer:", self.careers);
+          var Plan_Career_ids = res.data.map((item) => item.Plan_Career_id);
+          var careers = res.data.map((item) => item.career);
+          for (var i = 0; i < Plan_Career_ids.length; i++) {
+            self.career.options.push({
+              label: careers[i],
+              value: Plan_Career_ids[i],
+            });
+          }
         })
         .catch(function (error) {
           console.log(error);
@@ -397,17 +499,23 @@ export default {
       console.log(" แสดงข้อมูลคุณสมบัติ ");
       var self = this;
       axios
-        .post("http://localhost:85/ICPScoreCard/api-career-qualification.php", {
+        .post("http://localhost/ICPScoreCard/api-career-qualification.php", {
           action: "getCareerQualifiation",
-          career_id: this.qualification.planCareerId,
+          // career_id: this.qualification.planCareerId,
         })
         .then(function (res) {
           console.log(res);
           self.career_qualifications = res.data;
-          self.ca_qualification_ids = res.data.map(
-            (item) => item.career_qualification_id
-          );
-          self.ca_qualifications = res.data.map((item) => item.qualification);
+          var qualification_ids = res.data.map((item) => item.qualification_id);
+          var skills = res.data.map((item) => item.skill);
+          var full_names = res.data.map((item) => item.full_name);
+          for (var i = 0; i < qualification_ids.length; i++) {
+            self.qa.options.push({
+              label: skills[i],
+              value: qualification_ids[i],
+              description: full_names[i],
+            });
+          }
         })
         .catch(function (error) {
           console.log(error);
@@ -431,7 +539,7 @@ export default {
         this.$emit("saveData", newQualification);
 
         axios
-          .post("http://localhost:85/ICPScoreCard/api-qualification.php", {
+          .post("http://localhost/ICPScoreCard/api-qualification.php", {
             action: "insert",
             qualificationId: this.qualification.qualificationId,
             planCareerId: this.qualification.planCareerId,
@@ -449,7 +557,7 @@ export default {
           });
       } else {
         axios
-          .post("http://localhost:85/ICPScoreCard/api-qualification.php", {
+          .post("http://localhost/ICPScoreCard/api-qualification.php", {
             action: "update",
             qualificationId: this.qualification.qualificationId,
             planCareerId: this.qualification.planCareerId,
@@ -472,7 +580,7 @@ export default {
       this.isEdit = true;
       var self = this;
       axios
-        .post("http://localhost:85/ICPScoreCard/api-qualification.php", {
+        .post("http://localhost/ICPScoreCard/api-qualification.php", {
           action: "edit",
           qualificationId: qualificationId,
         })
@@ -483,24 +591,23 @@ export default {
           self.qualification.skill = response.data.skill;
           self.qualification.level = response.data.level;
           self.qualification.goal = response.data.goal;
-          // self.qualifications_ = response.data;
         })
         .catch(function (error) {
           console.log(error);
         });
     },
-    deleteUser(qualificationId) {
-      if (confirm("คุณต้องการลบรหัส " + qualificationId + " หรือไม่ ?")) {
+    deleteUser(qualificationId, skill) {
+      if (confirm("คุณต้องการลบรหัส " + skill + " หรือไม่ ?")) {
         var self = this;
         axios
-          .post("http://localhost:85/ICPScoreCard/api-qualification.php", {
+          .post("http://localhost/ICPScoreCard/api-qualification.php", {
             action: "delete",
             qualificationId: qualificationId,
           })
           .then(function (response) {
             console.log(response);
             self.resetForm();
-            self.getAllUser();
+            this.getAllUser();
           })
           .catch(function (error) {
             console.log(error);
@@ -538,123 +645,58 @@ export default {
       });
       return filteredRows;
     },
-  },
-
-  setup() {
-    const loading = ref(true);
-    const qualifications1 = ref([]);
-    const qualifications1_ = ref([]);
-    const QC = [
-      {
-        qualificationId: "",
-        planCareerId: "",
-        skill: "",
-        level: "",
-        goal: "",
-      },
-    ];
-    const columns = [
-      {
-        name: "qualificationId",
-        required: true,
-        label: "รหัสคุณสมบัติ",
-        align: "center",
-        field: (row) => row.qualificationId,
-        format: (val) => `${val}`,
-        sortable: true,
-      },
-      {
-        name: "planCareerId",
-        label: "รหัสแผนอาชีพ",
-        align: "center",
-        field: (row) => row.planCareerId,
-        format: (val) => `${val}`,
-        sortable: true,
-      },
-      {
-        name: "skill",
-        label: "คุณสมบัติ/ทักษะ",
-        field: (row) => row.skill,
-        format: (val) => `${val}`,
-      },
-      {
-        name: "level",
-        label: "ระดับ",
-        field: (row) => row.level,
-        format: (val) => `${val}`,
-      },
-      {
-        name: "goal",
-        label: "เป้าหมาย",
-        field: (row) => row.goal,
-        format: (val) => `${val}`,
-      },
-      { name: "actions", align: "center", label: "Action" },
-    ];
-    axios
-      .post("http://localhost:85/ICPScoreCard/api-qualification.php", {
-        action: "getall",
-      })
-      .then(function (res) {
-        console.log("q-table:", res);
-        qualifications1.value = res.data;
-        console.log("qualifications1.value:", qualifications1.value);
-      })
-      .finally(() => {
-        loading.value = false;
-      });
-    const onEdit = (row) => {
-      this.status = "Update(อัพเดท)";
-      this.isEdit = true;
+    getUpdate() {
       var self = this;
       axios
-        .post("http://localhost:85/ICPScoreCard/api-qualification.php", {
-          action: "edit",
-          qualificationId: row.qualificationId,
+        .post("http://localhost/ICPScoreCard/api-qualification.php", {
+          action: "getall",
         })
-        .then(function (response) {
-          console.log(response);
-          QC.qualificationId = response.data.qualificationId;
-          QC.planCareerId = response.data.planCareerId;
-          QC.skill = response.data.skill;
-          QC.level = response.data.level;
-          QC.goal = response.data.goal;
-          qualifications1_ = response.data;
+        .then(function (res) {
+          console.log("getUpdate():", res);
+          self.qualifications1 = res.data;
+          console.log("getUpdate():", self.qualifications1);
+        })
+        .finally(() => {
+          self.loading = false;
+        });
+    },
+    getEmployeeID() {
+      console.log(" แสดงข้อมูลทั้งหมด ");
+      var self = this;
+      var memId = parseInt(this.$store.getters.myMember_id);
+      var emp_id = Array;
+      axios
+        .post("http://localhost/ICPScoreCard/api-career.php", {
+          action: "getEmployeeId",
+          member_id: memId,
+        })
+        .then(function (res) {
+          emp_id = res.data;
+          self.emp_id1 = emp_id["id"];
+          self.storeEmp_id(self.emp_id1);
+          // self.getCareer(self.emp_id1);
         })
         .catch(function (error) {
           console.log(error);
         });
-    };
-    const onDelete = (row) => {
-      if (confirm("คุณต้องการลบรหัส " + row.qualificationId + " หรือไม่ ?")) {
-        var self = this;
-        axios
-          .post("http://localhost:85/ICPScoreCard/api-qualification.php", {
-            action: "delete",
-            qualificationId: row.qualificationId,
-          })
-          .then(function (response) {
-            console.log(response);
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-      }
-    };
-    return {
-      filter: ref(""),
-      columns,
-      loading,
-      qualifications1,
-      qualifications1_,
-      QC,
-      // onEdit,
-      // onDelete,
-    };
+    },
+    storeEmp_id(emp_id) {
+      console.log("store Emp_id:", emp_id);
+      this.$store.commit("setMyEmployee_id", emp_id);
+      console.log("store employee_id", this.$store.getters.myEmployee_id);
+    },
+    onNext() {
+      this.$router.replace({ name: "FormPlan" });
+    },
+    onPrevious() {
+      this.$router.replace({ name: "FormPlanCareer" });
+    },
   },
   created() {
-    this.getAllUser();
+    this.getEmployeeID();
     this.getCareer();
+    this.getQualification();
+    this.getUpdate();
   },
   computed: {
     showAll: {

@@ -25,9 +25,27 @@
             >
               Sign uot
             </router-link>
-            <q-btn flat round dense>Sign in</q-btn>
-            <q-btn flat round dense>Sign out</q-btn>
+            <!-- <q-btn flat round dense>Sign in</q-btn>
+            <q-btn flat round dense>Sign out</q-btn> -->
           </q-toolbar-title>
+          <q-btn
+            v-if="!$store.getters.myAuthenticate"
+            flat
+            round
+            dense
+            icon="login"
+            @click="onLogin"
+            >Sign in
+          </q-btn>
+          <q-btn
+            v-if="!$store.getters.myAuthenticate"
+            flat
+            round
+            dense
+            icon="logout"
+            @click="onLogout"
+            >Sign out</q-btn
+          >
         </div>
       </q-toolbar>
     </q-header>
@@ -81,12 +99,12 @@ const linksList = [
     icon: "signal_cellular_alt",
     link: "/FormChart",
   },
-  {
-    title: "ติดตามความก้าวหน้า",
-    caption: "ระดับขั้นการประเมิน",
-    icon: "signal_cellular_alt",
-    link: "/FormProgress",
-  },
+  // {
+  //   title: "ติดตามความก้าวหน้า",
+  //   caption: "ระดับขั้นการประเมิน",
+  //   icon: "signal_cellular_alt",
+  //   link: "/FormProgress",
+  // },
   {
     title: "ค้นหาข้อมูล",
     caption: "ชื่อ-สกุล อาชีพ",
@@ -113,7 +131,14 @@ export default defineComponent({
   components: {
     EssentialLink,
   },
-
+  methods: {
+    onLogin() {
+      this.$router.replace({ name: LoginPage1 });
+    },
+    onLogout() {
+      this.$router.replace({ name: LogoutPage });
+    },
+  },
   setup() {
     const leftDrawerOpen = ref(false);
 

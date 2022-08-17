@@ -31,38 +31,6 @@
                           bg-color="green"
                           standout
                           bottom-slots
-                          v-model="planCareerId"
-                          label="อาชีพ"
-                          clearable
-                        >
-                          <template v-slot:prepend>
-                            <q-icon name="work_outline" />
-                          </template>
-                          <template v-slot:append>
-                            <q-icon name="favorite" />
-                          </template>
-                        </q-input>
-                      </div>
-                      <div class="col-md-6 col-xs-12 q-pa-md">
-                        <q-select
-                          color="green"
-                          v-model="planCareerId"
-                          :options="career.options"
-                          label="อาชีพที่ต้องการ"
-                        >
-                          <template v-slot:prepend>
-                            <q-icon name="flag_circle" />
-                          </template>
-                        </q-select>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-6 col-xs-12 q-pa-md">
-                        <q-input
-                          color="white"
-                          bg-color="green"
-                          standout
-                          bottom-slots
                           v-model="plan.qualificationId"
                           label="คุณสมบัติ"
                           clearable
@@ -80,12 +48,35 @@
                           color="green"
                           v-model="plan.qualificationId"
                           :options="qualification.options"
-                          label="คุณสมบัติที่กำหนด"
+                          label="คุณสมบัติตามอาชีพที่ต้องการ"
+                          emit-value
+                          map-options
                         >
-                          <template v-slot:prepend>
+                          <!-- <template v-slot:prepend>
                             <q-icon name="flag_circle" />
+                          </template> -->
+                          <template v-slot:option="scope">
+                            <q-item v-bind="scope.itemProps">
+                              <q-item-section avatar>
+                                <q-icon :name="scope.opt.icon" />
+                              </q-item-section>
+                              <q-item-section>
+                                <q-item-label>{{ scope.opt.label }}</q-item-label>
+                                <q-item-label caption>{{
+                                  scope.opt.description
+                                }}</q-item-label>
+                              </q-item-section>
+                            </q-item>
                           </template>
                         </q-select>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-3 col-xs-12 q-pa-md row justify-center">
+                        <label>เลือกแผนการพัฒนา:</label>
+                      </div>
+                      <div class="col-md-9 col-xs-12 q-pa-md row justify-center">
+                        <q-option-group :options="level.options" color="green" inline />
                       </div>
                     </div>
                     <div class="row">
@@ -95,8 +86,8 @@
                           bg-color="green"
                           standout
                           bottom-slots
-                          v-model="plan.leaning"
-                          label="แผนการเรียนรู้"
+                          v-model="plan.learning"
+                          label="เรื่อง"
                           clearable
                         >
                           <template v-slot:prepend>
@@ -116,7 +107,7 @@
                           standout
                           bottom-slots
                           v-model="plan.doing"
-                          label="แผนการปฏิบัติ"
+                          label="ช่องทาง"
                           clearable
                         >
                           <template v-slot:prepend>
@@ -129,13 +120,67 @@
                       </div>
                     </div>
                     <div class="row">
-                      <div class="col-md-6 col-xs-12 q-pa-md">
-                        <q-btn
-                          label="บันทึก"
-                          type="submit"
-                          color="primary"
-                          icon="save"
+                      <div class="col-md-3 col-xs-12 q-pa-md row justify-center">
+                        <label>ความถี่/การแจ้งเตือน:</label>
+                      </div>
+                      <div class="col-md-9 col-xs-12 q-pa-md row justify-center">
+                        <!-- <h6>เลือกแผนการพัฒนาตนเอง</h6> -->
+                        <q-option-group
+                          :options="frequency.options"
+                          color="green"
+                          inline
                         />
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-3 col-xs-12 q-pa-md row justify-center">
+                        <label>ระบุระดับความเร่งด่วน:</label>
+                      </div>
+                      <div class="col-md-9 col-xs-12 q-pa-md row justify-center">
+                        <!-- <h6>เลือกแผนการพัฒนาตนเอง</h6> -->
+                        <q-option-group
+                          :options="importance.options"
+                          color="green"
+                          inline
+                        />
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-12 col-xs-12 q-pa-md">
+                        <!-- v-model="employee.date" -->
+                        <q-input
+                          filled
+                          label="วัน/เดือน/ปี:ที่จะดำเนินการสำเร็จ"
+                          mask="date"
+                          :rules="['date']"
+                        >
+                          <template v-slot:append>
+                            <q-icon name="event" class="cursor-pointer">
+                              <q-popup-proxy
+                                cover
+                                transition-show="scale"
+                                transition-hide="scale"
+                              >
+                                <!-- <q-date v-model="employee.date"> -->
+                                <q-date>
+                                  <div class="row items-center justify-end">
+                                    <q-btn
+                                      v-close-popup
+                                      label="Close"
+                                      color="primary"
+                                      flat
+                                    />
+                                  </div>
+                                </q-date>
+                              </q-popup-proxy>
+                            </q-icon>
+                          </template>
+                        </q-input>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-12 col-xs-12 q-pa-md row justify-center">
+                        <q-btn label="บันทึก" type="submit" color="primary" icon="save" />
                         <q-btn
                           label="ยกเลิก"
                           type="reset"
@@ -144,9 +189,23 @@
                           class="q-ml-sm"
                           icon="clear"
                         />
+                        <q-btn
+                          color="primary"
+                          no-caps
+                          flat
+                          icon="skip_previous"
+                          @click="onPrevious"
+                        />
+                        <q-btn
+                          color="primary"
+                          no-caps
+                          flat
+                          icon="skip_next"
+                          @click="onNext"
+                        />
                       </div>
                     </div>
-                    <div class="row">
+                    <!-- <div class="row">
                       <div class="col-md-12 col-xs-12 q-pa-md">
                         <table class="table">
                           <thead>
@@ -184,6 +243,52 @@
                           </tbody>
                         </table>
                       </div>
+                      <div>
+                        {{ qualification.options }}
+                      </div>
+                    </div> -->
+                    <div class="row">
+                      <div class="col-md-12 col-xs-12 q-pa-md">
+                        <div class="q-pa-md">
+                          <q-table
+                            :grid="$q.screen.xs"
+                            title="ข้อมูลแผนการพัฒนาตนเอง"
+                            :rows="plans1"
+                            :columns="columns"
+                            row-key="skill"
+                            :filter="filter"
+                            :loading="loading"
+                          >
+                            <template v-slot:top-right>
+                              <div class="col-9">
+                                <q-input
+                                  borderless
+                                  dense
+                                  debounce="300"
+                                  v-model="filter"
+                                  placeholder="Search"
+                                >
+                                  <template v-slot:append>
+                                    <q-icon name="search" />
+                                  </template>
+                                </q-input>
+                              </div>
+                            </template>
+                            <template v-slot:body-cell-actions="props">
+                              <q-td :props="props">
+                                <q-btn
+                                  icon="mode_edit"
+                                  @click="editUser(props.row.plan_id)"
+                                ></q-btn>
+                                <q-btn
+                                  icon="delete"
+                                  @click="onDelete(props.row.plan_id)"
+                                ></q-btn>
+                              </q-td>
+                            </template>
+                          </q-table>
+                        </div>
+                      </div>
                     </div>
                   </q-form>
                 </div>
@@ -194,148 +299,6 @@
       </q-page>
     </q-page-container>
   </q-layout>
-
-  <!-- <h3>แผนปฏิบัติ/เรียนรู้</h3>
-  <form @submit.prevent="submitForm" @reset.prevent="resetForm" method="post">
-    <div class="row">
-      <div class="input-field col s4">
-        <label for="plan-id">PL-ID/รหัสแผนเรียน/ทำ:</label>
-        <input
-          type="text"
-          name="planId"
-          v-model="plan.planId"
-          placeholder="PL-ID/รหัสแผนเรียน/ทำ"
-          required
-          disabled
-          class="form-control form-control-lg"
-        />
-      </div>
-    </div>
-    <div class="row">
-      <div class="input-field col s4">
-        <label for="career_plan-id">CA-ID/รหัสอาชีพ:</label>
-        <input
-          type="text"
-          name="Career"
-          v-model="planCareerId"
-          placeholder="Career/อาชีพ"
-          required
-          disabled
-          class="form-control form-control-lg"
-        />
-        <select
-          :size="4"
-          v-model="planCareerId"
-          :required="true"
-          @change="getQualification()"
-        >
-          <option value="" disabled selected>อาชีพ:</option>
-          <option
-            v-for="career in careers"
-            :value="career.Plan_Career_id"
-            :key="career.index"
-          >
-            {{ career.Plan_Career_id }} {{ career.Name_Plan_Career }}
-          </option>
-        </select>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="input-field col s4">
-        <label for="qualification-id">QA-ID/รหัสคุณสมบัติ:</label>
-        <input
-          type="text"
-          name="qualification"
-          v-model="plan.qualificationId"
-          placeholder="Qualification/คุณสมบัติ"
-          required
-          disabled
-          class="form-control form-control-lg"
-        />
-        <select :size="4" v-model="plan.qualificationId">
-          <option value="" disabled selected>กำหนดคุณสมบัติ:</option>
-          <option
-            v-for="career_qualification in career_qualifications"
-            :value="career_qualification.qualificationId"
-            :key="career_qualification.index"
-          >
-            {{ career_qualification.qualificationId }}
-            {{ career_qualification.skill }}
-          </option>
-        </select>
-      </div>
-    </div>
-    <div class="row">
-      <div class="input-field col s4">
-        <label for="leaning">Learning plan/แผนการเรียนรู้:</label>
-        <input
-          type="text"
-          name="leaning"
-          v-model="plan.leaning"
-          placeholder="Learnning plan/แผนการเรียนรู้"
-          class="form-control form-control-lg"
-        />
-      </div>
-    </div>
-    <div class="row">
-      <div class="input-field col s4">
-        <label for="doing">Doing plan/แผนปฏิบัติการ:</label>
-        <input
-          type="text"
-          name="doing"
-          v-model="plan.doing"
-          placeholder="Do/แผนปฏิบัติการ"
-          class="form-control form-control-lg"
-        />
-      </div>
-    </div>
-    <div class="form-contol">
-      <input type="submit" value="Save/บันทึก" class="btn btn-success" />
-      <input type="reset" value="Cancel/ยกเลิก" class="btn btn-danger" />
-    </div>
-  </form> -->
-
-  <!-- <div class="py-2">
-    {{ plans_ }}
-  </div>
-  <div class="py-2">
-    {{ plan }}
-  </div> -->
-  <!-- <div>employee_id: {{ employee_id }} careers: {{ careers }}</div>
-  <div>career_qualifications: {{ career_qualifications }}</div> -->
-
-  <!-- <div class="py-2">
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">PL-ID</th>
-          <th scope="col">QA-ID</th>
-          <th scope="col">Do</th>
-          <th scope="col">Lean</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="row in plans" :key="row.index">
-          <td>{{ row.planId }}</td>
-          <td>{{ row.qualificationId }}</td>
-          <td>{{ row.doing }}</td>
-          <td>{{ row.leaning }}</td>
-          <td>
-            <button class="btn btn-primary" @click="editUser(row.planId)">
-              Edit
-            </button>
-          </td>
-          <td>
-            <button class="btn btn-warning" @click="deleteUser(row.planId)">
-              Delete
-            </button>
-          </td>
-        </tr>
-        <tr></tr>
-      </tbody>
-    </table>
-  </div> -->
 </template>
 
 <script>
@@ -355,11 +318,10 @@ export default {
       planCareerId: "",
       //planId	qualificationId	doing leaning
       plan: {
-        planId: "",
-        qualificationId: "",
+        plan_id: "",
+        qualification_id: "",
         doing: "",
-        leaning: "",
-        isVisible: false,
+        learning: "",
       },
       isEdit: false,
       status: "บันทึก",
@@ -376,13 +338,138 @@ export default {
       qualificationIds: Array,
       skills: Array,
       qualification: {
+        options: [],
+      },
+      level: {
         options: [
           {
-            label: this.qualificationIds,
-            value: this.skills,
+            label: "แผนพัฒนาตนเองโดยการเรียน",
+            value: "1",
+          },
+          {
+            label: "แผนพัฒนาตนเองโดยการทำ",
+            value: "2",
           },
         ],
       },
+      frequency: {
+        options: [
+          {
+            label: "ทุกวัน",
+            value: "1",
+          },
+          {
+            label: "ทุกสัปดาห์",
+            value: "2",
+          },
+          {
+            label: "ทุกเดือน",
+            value: "3",
+          },
+        ],
+      },
+      importance: {
+        options: [
+          {
+            label: "สำคัญมาก",
+            value: "1",
+          },
+          {
+            label: "สำคัญปานกลาง",
+            value: "2",
+          },
+          {
+            label: "สำคัญน้อย",
+            value: "3",
+          },
+        ],
+      },
+      columns: [
+        {
+          name: "plan_id",
+          required: true,
+          label: "รหัสแผนพัฒนาตนเอง",
+          align: "center",
+          field: (row) => row.plan_id,
+          format: (val) => `${val}`,
+          sortable: true,
+        },
+        {
+          name: "qualification_id",
+          label: "รหัสคุณสมบัติ",
+          align: "center",
+          field: (row) => row.qualification_id,
+          format: (val) => `${val}`,
+          sortable: true,
+        },
+        {
+          name: "doing",
+          label: "แผนพัฒนาตนเองการทำ",
+          align: "left",
+          field: (row) => row.doing,
+          format: (val) => `${val}`,
+          sortable: true,
+        },
+        {
+          name: "learning",
+          label: "แผนพัฒนาตนเองการเรียน",
+          align: "left",
+          field: (row) => row.learning,
+          format: (val) => `${val}`,
+          sortable: true,
+        },
+        {
+          name: "planing",
+          label: "แผนการพัฒนา",
+          align: "center",
+          field: (row) => row.planing,
+          format: (val) => `${val}`,
+          sortable: true,
+        },
+        {
+          name: "title",
+          label: "เรื่อง",
+          align: "center",
+          field: (row) => row.title,
+          format: (val) => `${val}`,
+          sortable: true,
+        },
+        {
+          name: "chanel",
+          label: "ช่องทาง",
+          align: "center",
+          field: (row) => row.chanel,
+          format: (val) => `${val}`,
+          sortable: true,
+        },
+        {
+          name: "frequency",
+          label: "ความถี่",
+          align: "center",
+          field: (row) => row.frequency,
+          format: (val) => `${val}`,
+          sortable: true,
+        },
+        {
+          name: "importance",
+          label: "ความเร่งด่วน",
+          align: "center",
+          field: (row) => row.importance,
+          format: (val) => `${val}`,
+          sortable: true,
+        },
+        {
+          name: "date",
+          label: "วันแล้วสำเร็จ",
+          align: "center",
+          field: (row) => row.date,
+          format: (val) => `${val}`,
+          sortable: true,
+        },
+      ],
+      filter: "",
+      loading: true,
+      plans1: [],
     };
   },
   methods: {
@@ -393,14 +480,13 @@ export default {
       // this.plan.planId = 0;
       // this.plan.qualificationId = 0;
       this.plan.doing = "";
-      this.plan.leaning = "";
-      this.plan.isVisible = false;
+      this.plan.learning = "";
     },
     getAllUser() {
       console.log(" แสดงข้อมูลทั้งหมด ");
       var self = this;
       axios
-        .post("http://localhost:85/ICPScoreCard/api-plan.php", {
+        .post("http://localhost/ICPScoreCard/api-plan.php", {
           action: "getall",
         })
         .then(function (res) {
@@ -411,57 +497,57 @@ export default {
           console.log(error);
         });
     },
-    getCareer() {
-      console.log(" ข้อมูลอาชีพ ");
-      var self = this;
-      axios
-        .post("http://localhost:85/ICPScoreCard/api-career-qualification.php", {
-          action: "getEmpCareer",
-          employee_id: this.employee_id,
-        })
-        .then(function (res) {
-          self.careers = res.data;
-          console.log("careers:", self.careers);
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-    },
-    getQualification() {
-      console.log(" แสดงข้อมูลคุณสมบัติ ");
-      var self = this;
-      axios
-        .post("http://localhost:85/ICPScoreCard/api-career-qualification.php", {
-          action: "getCareer_Qualifiation",
-          career_id: this.planCareerId,
-        })
-        .then(function (res) {
-          console.log(res);
-          self.career_qualifications = res.data;
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-    },
+    // getCareer() {
+    //   console.log(" ข้อมูลอาชีพ ");
+    //   var self = this;
+    //   axios
+    //     .post("http://localhost:85/ICPScoreCard/api-career-qualification.php", {
+    //       action: "getEmpCareer",
+    //       employee_id: this.employee_id,
+    //     })
+    //     .then(function (res) {
+    //       self.careers = res.data;
+    //       console.log("careers:", self.careers);
+    //     })
+    //     .catch(function (error) {
+    //       console.log(error);
+    //     });
+    // },
+    // getQualification() {
+    //   console.log(" แสดงข้อมูลคุณสมบัติ ");
+    //   var self = this;
+    //   axios
+    //     .post("http://localhost:85/ICPScoreCard/api-career-qualification.php", {
+    //       action: "getCareer_Qualifiation",
+    //       career_id: this.planCareerId,
+    //     })
+    //     .then(function (res) {
+    //       console.log(res);
+    //       self.career_qualifications = res.data;
+    //     })
+    //     .catch(function (error) {
+    //       console.log(error);
+    //     });
+    // },
     submitForm() {
       if (!this.isEdit) {
         console.log("บันทึก");
         console.log("Form Plan Career:", this.planCareer);
         const newPlan = {
-          planId: this.plan.planId,
-          qualificationId: this.plan.qualificationId,
+          planId: this.plan.plan_id,
+          qualificationId: this.plan.qualification_id,
           doing: this.plan.doing,
-          leaning: this.plan.leaning,
+          learning: this.plan.learning,
         };
         this.$emit("saveData", newPlan);
 
         axios
-          .post("http://localhost:85/ICPScoreCard/api-plan.php", {
+          .post("http://localhost/ICPScoreCard/api-plan.php", {
             action: "insert",
-            planId: this.plan.planId,
-            qualificationId: this.plan.qualificationId,
+            planId: this.plan.plan_id,
+            qualificationId: this.plan.qualification_id,
             doing: this.plan.doing,
-            leaning: this.plan.leaning,
+            learning: this.plan.learning,
           })
           .then((res) => {
             console.log(res);
@@ -473,12 +559,12 @@ export default {
           });
       } else {
         axios
-          .post("http://localhost:85/ICPScoreCard/api-plan.php", {
+          .post("http://localhost/ICPScoreCard/api-plan.php", {
             action: "update",
-            planId: this.plan.planId,
-            qualificationId: this.plan.qualificationId,
+            planId: this.plan.plan_id,
+            qualificationId: this.plan.qualification_id,
             doing: this.plan.doing,
-            leaning: this.plan.leaning,
+            learning: this.plan.learning,
           })
           .then((response) => {
             console.log(response);
@@ -490,21 +576,21 @@ export default {
           });
       }
     },
-    editUser(planId) {
+    editUser(plan_id) {
       this.status = "Update(อัพเดท)";
       this.isEdit = true;
       var self = this;
       axios
-        .post("http://localhost:85/ICPScoreCard/api-plan.php", {
+        .post("http://localhost/ICPScoreCard/api-plan.php", {
           action: "edit",
-          planId: planId,
+          planId: plan_id,
         })
         .then(function (response) {
           console.log(response);
-          self.plan.planId = response.data.planId;
-          self.plan.qualificationId = response.data.qualificationId;
+          self.plan.plan_id = response.data.plan_id;
+          self.plan.qualification_id = response.data.qualification_id;
           self.plan.doing = response.data.doing;
-          self.plan.leaning = response.data.leaning;
+          self.plan.learning = response.data.learning;
 
           self.plans_ = response.data;
         })
@@ -512,13 +598,13 @@ export default {
           console.log(error);
         });
     },
-    deleteUser(planId) {
-      if (confirm("คุณต้องการลบรหัส " + planId + " หรือไม่ ?")) {
+    deleteUser(plan_id) {
+      if (confirm("คุณต้องการลบรหัส " + plan_id + " หรือไม่ ?")) {
         var self = this;
         axios
-          .post("http://localhost:85/ICPScoreCard/api-plan.php", {
+          .post("http://localhost/ICPScoreCard/api-plan.php", {
             action: "delete",
-            planId: planId,
+            planId: plan_id,
           })
           .then(function (response) {
             console.log(response);
@@ -530,10 +616,58 @@ export default {
           });
       }
     },
+    onNext() {
+      this.$router.replace({ name: "FormSelfAssessment" });
+    },
+    onPrevious() {
+      this.$router.replace({ name: "FormQualification" });
+    },
+    getQualification() {
+      var self = this;
+      axios
+        .post("http://localhost/ICPScoreCard/api-plan.php", {
+          action: "getAll",
+          // career_id: this.planCareerId,
+        })
+        .then(function (res) {
+          console.log("getUpdate():", res);
+          var qualifications = res.data;
+          console.log("getUpdate():", qualifications);
+          var qualification_ids = res.data.map((item) => item.qualification_id);
+          var skills = res.data.map((item) => item.skill);
+          var careers = res.data.map((item) => item.career);
+          for (var i = 0; i < qualification_ids.length; i++) {
+            self.qualification.options.push({
+              label: skills[i],
+              value: qualification_ids[i],
+              description: careers[i],
+            });
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    },
+    getUpdate() {
+      console.log(" แสดงข้อมูลทั้งหมด ");
+      var self = this;
+      axios
+        .post("http://localhost/ICPScoreCard/api-plan.php", {
+          action: "getall",
+        })
+        .then(function (res) {
+          console.log(res);
+          self.plans1 = res.data;
+        })
+        .finally(() => {
+          self.loading = false;
+        });
+    },
   },
   created() {
-    this.getAllUser();
-    this.getCareer();
+    this.getQualification();
+    // this.getAllUser();
+    this.getUpdate();
   },
 };
 </script>

@@ -20,11 +20,7 @@
           class="form-control form-control-lg"
         />
       </div>
-      <button
-        type="button"
-        class="btn btn-dark btn-lg btn-block"
-        @click="login()"
-      >
+      <button type="button" class="btn btn-dark btn-lg btn-block" @click="login()">
         Login/เข้าสู่ระบบ
       </button>
       <q-btn flat no-caps no-wrap class="q-ml-xs" v-if="$q.screen.gt.xs">
@@ -67,7 +63,7 @@ export default {
       console.log(" ตรวจสอบข้อมูลสมาชิค ");
       var self = this;
       axios
-        .post("http://localhost:85/ICPScoreCard/api-member.php", {
+        .post("http://localhost/ICPScoreCard/api-member.php", {
           action: "checkMember",
           user: this.input.username,
           pass: this.input.password,

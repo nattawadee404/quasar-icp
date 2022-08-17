@@ -31,38 +31,6 @@
                           bg-color="green"
                           standout
                           bottom-slots
-                          v-model="planCareerId"
-                          label="อาชีพ"
-                          clearable
-                        >
-                          <template v-slot:prepend>
-                            <q-icon name="work_outline" />
-                          </template>
-                          <template v-slot:append>
-                            <q-icon name="favorite" />
-                          </template>
-                        </q-input>
-                      </div>
-                      <div class="col-md-6 col-xs-12 q-pa-md">
-                        <q-select
-                          color="green"
-                          v-model="planCareerId"
-                          :options="career.options"
-                          label="อาชีพที่ต้องการ"
-                        >
-                          <template v-slot:prepend>
-                            <q-icon name="flag_circle" />
-                          </template>
-                        </q-select>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-6 col-xs-12 q-pa-md">
-                        <q-input
-                          color="white"
-                          bg-color="green"
-                          standout
-                          bottom-slots
                           v-model="selfAssessment.qualificationId"
                           label="คุณสมบัติ"
                           clearable
@@ -81,9 +49,24 @@
                           v-model="selfAssessment.qualificationId"
                           :options="qualification.options"
                           label="คุณสมบัติที่กำหนด"
+                          emit-value
+                          map-options
                         >
-                          <template v-slot:prepend>
+                          <!-- <template v-slot:prepend>
                             <q-icon name="flag_circle" />
+                          </template> -->
+                          <template v-slot:option="scope">
+                            <q-item v-bind="scope.itemProps">
+                              <q-item-section avatar>
+                                <q-icon :name="scope.opt.icon" />
+                              </q-item-section>
+                              <q-item-section>
+                                <q-item-label>{{ scope.opt.label }}</q-item-label>
+                                <q-item-label caption>{{
+                                  scope.opt.description
+                                }}</q-item-label>
+                              </q-item-section>
+                            </q-item>
                           </template>
                         </q-select>
                       </div>
@@ -115,13 +98,8 @@
                       </div>
                     </div>
                     <div class="row">
-                      <div class="col-md-6 col-xs-12 q-pa-md">
-                        <q-btn
-                          label="บันทึก"
-                          type="submit"
-                          color="primary"
-                          icon="save"
-                        />
+                      <div class="col-md-12 col-xs-12 q-pa-md row justify-center">
+                        <q-btn label="บันทึก" type="submit" color="primary" icon="save" />
                         <q-btn
                           label="ยกเลิก"
                           type="reset"
@@ -129,6 +107,20 @@
                           flat
                           class="q-ml-sm"
                           icon="clear"
+                        />
+                        <q-btn
+                          color="primary"
+                          no-caps
+                          flat
+                          icon="skip_previous"
+                          @click="onPrevious"
+                        />
+                        <q-btn
+                          color="primary"
+                          no-caps
+                          flat
+                          icon="skip_next"
+                          @click="onNext"
                         />
                       </div>
                     </div>
@@ -183,196 +175,6 @@
       </q-page>
     </q-page-container>
   </q-layout>
-
-  <!-- <h3>ประเมินตนเอง</h3>
-  <form @submit.prevent="submitForm" @reset.prevent="resetForm" method="post">
-    <div class="row">
-      <div class="input-field col s4">
-        <label for="selfAssessment-id"> SA-ID/รหัสประเมินตนเอง: </label>
-        <input
-          type="text"
-          name="selfAssessmentId"
-          v-model="selfAssessment.selfAssessmentId"
-          placeholder="SA-ID/รหัสประเมินตนเอง"
-          required
-          disabled
-          class="form-control form-control-lg"
-        />
-      </div>
-    </div>
-    <div class="row">
-      <div class="input-field col s4">
-        <label for="career_plan-id">CA-ID/รหัสอาชีพ:</label>
-        <input
-          type="text"
-          name="planCareerId"
-          v-model="planCareerId"
-          placeholder="CA-ID/รหัสอาชีพ"
-          required
-          disabled
-          class="form-control form-control-lg"
-        />
-        <select
-          :size="4"
-          v-model="planCareerId"
-          :required="true"
-          @change="getQualification()"
-        >
-          <option value="" disabled selected>อาชีพที่ต้องการ:</option>
-          <option
-            v-for="career in careers"
-            :value="career.Plan_Career_id"
-            :key="career.index"
-          >
-            {{ career.Plan_Career_id }} {{ career.Name_Plan_Career }}
-          </option>
-        </select>
-      </div>
-    </div>
-    <div class="row">
-      <div class="input-field col s4">
-        <label for="quanlification-id">QA-ID/รหัสคุณสมบัติ:</label>
-        <input
-          type="text"
-          name="quanlification-id"
-          v-model="selfAssessment.qualificationId"
-          placeholder="QA-ID/รหัสคุณสมบัติ"
-          required
-          disabled
-          class="form-control form-control-lg"
-        />
-        <select :size="4" v-model="selfAssessment.qualificationId">
-          <option value="" disabled selected>คุณสมบัติตามแผนอาชีพ:</option>
-          <option
-            v-for="career_qualification in career_qualifications"
-            :value="career_qualification.qualificationId"
-            :key="career_qualification.index"
-          >
-            {{ career_qualification.qualificationId }}
-            {{ career_qualification.skill }}
-          </option>
-        </select>
-      </div>
-    </div>
-    <div class="row">
-      <div class="input-field col s4">
-        <label for="month">Month/เดือน-{{ currentYear }}</label>
-        <input
-          type="text"
-          name="month"
-          v-model="selfAssessment.month"
-          placeholder="Month/เดือน"
-          class="form-control form-control-lg"
-        />
-        <select :size="4" v-model="selfAssessment.month">
-          <option value="" disabled selected>ประเมินเดือน:</option>
-          <option value="มกราคม">มกราคม</option>
-          <option value="กุมภาพันธ์">กุมภาพันธ์</option>
-          <option value="มีนาคม">มีนาคม</option>
-          <option value="เมษายน">เมษายน</option>
-          <option value="พฤศภาคม">พฤศภาคม</option>
-          <option value="มิถุนายน">มิถุนายน</option>
-          <option value="กรกฏาคม">กรกฏาคม</option>
-          <option value="สิงหาคม">สิงหาคม</option>
-          <option value="กันยายน">กันยายน</option>
-          <option value="ตุลาคม">ตุลาคม</option>
-          <option value="พฤศจิกายน">พฤศจิกายน</option>
-          <option value="ธันวาคม">ธันวาคม</option>
-        </select>
-      </div>
-    </div>
-    <div class="row">
-      <div class="input-field col s4">
-        <label for="self-assessment">SA/ประเมินตนเอง:</label>
-        <input
-          type="text"
-          name="self-assessment"
-          v-model="selfAssessment.assessment"
-          placeholder="SA/ประเมินตนเอง"
-          class="form-control form-control-lg"
-        />
-        <div class="row">
-          <div class="input-field col s4">
-            <div class="form-group">
-              <input
-                type="radio"
-                value="Yes"
-                v-model="selfAssessment.assessment"
-              />
-              <label for="qualification_goal">Yes</label>
-            </div>
-          </div>
-          <div class="input-field col s4">
-            <div class="form-group">
-              <input
-                type="radio"
-                value="No"
-                v-model="selfAssessment.assessment"
-              />
-              <label for="qualification_goal">No</label>
-            </div>
-          </div>
-        </div>
-        <select :size="4" v-model="selfAssessment.assessment">
-          <option value="" disabled selected>ประเมินตนเอง:</option>
-          <option value="1">ระดับ 1/รู้จักทักษะนี้เล็กน้อย</option>
-          <option value="2">ระดับ 2/เคยเรียนทักษะนี้มาบ้าง</option>
-          <option value="3">ระดับ 3/เคยใช้ทักษะนี้เป็นครั้งคราว</option>
-          <option value="4">ระดับ 4/ได้ใช้ทักษะนี้ประจําหรือในงาน</option>
-          <option value="5">
-            ระดับ 5/ปัจจุบันสามารถสอนทักษะนี้แก่ผู้อื่นได้
-          </option>
-        </select>
-      </div>
-    </div>
-    <div class="form-contol">
-      <input type="submit" value="Save/บันทึก" class="btn btn-success" />
-      <input type="reset" value="Cancel/ยกเลิก" class="btn btn-danger" />
-    </div>
-  </form> -->
-  <!-- <div class="py-2">
-    {{ selfAssessments_ }}
-  </div>
-  <div class="py-2">
-    {{ selfAssessment }}
-  </div> -->
-  <!-- <div class="py-2">
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">SA-ID</th>
-          <th scope="col">QA-ID</th>
-          <th scope="col">Month</th>
-          <th scope="col">Self Assessment</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="row in selfAssessments" :key="row.selfAssessmentId">
-          <td>{{ row.selfAssessmentId }}</td>
-          <td>{{ row.qualificationId }}</td>
-          <td>{{ row.month }}</td>
-          <td>{{ row.assessment }}</td>
-          <td>
-            <button
-              class="btn btn-primary"
-              @click="editUser(row.selfAssessmentId)"
-            >
-              Edit
-            </button>
-          </td>
-          <td>
-            <button
-              class="btn btn-warning"
-              @click="deleteUser(row.selfAssessmentId)"
-            >
-              Delete
-            </button>
-          </td>
-        </tr>
-        <tr></tr>
-      </tbody>
-    </table>
-  </div> -->
 </template>
 
 <script>
@@ -412,12 +214,7 @@ export default {
       qualificationIds: Array,
       skills: Array,
       qualification: {
-        options: [
-          {
-            label: this.qualificationIds,
-            value: this.skills,
-          },
-        ],
+        options: [],
       },
       month: {
         options: [
@@ -520,7 +317,7 @@ export default {
       console.log(" แสดงข้อมูลทั้งหมด ");
       var self = this;
       axios
-        .post("http://localhost:85/ICPScoreCard/api-self-assessment.php", {
+        .post("http://localhost/ICPScoreCard/api-self-assessment.php", {
           action: "getall",
         })
         .then(function (res) {
@@ -545,7 +342,7 @@ export default {
         this.$emit("saveData", newSelfAssessment);
 
         axios
-          .post("http://localhost:85/ICPScoreCard/api-self-assessment.php", {
+          .post("http://localhost/ICPScoreCard/api-self-assessment.php", {
             action: "insert",
             selfAssessmentId: this.selfAssessment.selfAssessmentId,
             qualificationId: this.selfAssessment.qualificationId,
@@ -562,7 +359,7 @@ export default {
           });
       } else {
         axios
-          .post("http://localhost:85/ICPScoreCard/api-self-assessment.php", {
+          .post("http://localhost/ICPScoreCard/api-self-assessment.php", {
             action: "update",
             selfAssessmentId: this.selfAssessment.selfAssessmentId,
             qualificationId: this.selfAssessment.qualificationId,
@@ -583,7 +380,7 @@ export default {
       console.log(" ข้อมูลอาชีพ ");
       var self = this;
       axios
-        .post("http://localhost:85/ICPScoreCard/api-career-qualification.php", {
+        .post("http://localhost/ICPScoreCard/api-career-qualification.php", {
           action: "getEmpCareer",
           employee_id: this.employee_id,
         })
@@ -595,17 +392,43 @@ export default {
           console.log(error);
         });
     },
+    // getQualification() {
+    //   console.log(" แสดงข้อมูลคุณสมบัติ ");
+    //   var self = this;
+    //   axios
+    //     .post("http://localhost:85/ICPScoreCard/api-career-qualification.php", {
+    //       action: "getCareer_Qualifiation",
+    //       career_id: this.planCareerId,
+    //     })
+    //     .then(function (res) {
+    //       console.log(res);
+    //       self.career_qualifications = res.data;
+    //     })
+    //     .catch(function (error) {
+    //       console.log(error);
+    //     });
+    // },
     getQualification() {
-      console.log(" แสดงข้อมูลคุณสมบัติ ");
       var self = this;
       axios
-        .post("http://localhost:85/ICPScoreCard/api-career-qualification.php", {
-          action: "getCareer_Qualifiation",
-          career_id: this.planCareerId,
+        .post("http://localhost/ICPScoreCard/api-plan.php", {
+          action: "getAll",
+          // career_id: this.planCareerId,
         })
         .then(function (res) {
-          console.log(res);
-          self.career_qualifications = res.data;
+          console.log("getUpdate():", res);
+          var qualifications = res.data;
+          console.log("getUpdate():", qualifications);
+          var qualification_ids = res.data.map((item) => item.qualification_id);
+          var skills = res.data.map((item) => item.skill);
+          var careers = res.data.map((item) => item.career);
+          for (var i = 0; i < qualification_ids.length; i++) {
+            self.qualification.options.push({
+              label: skills[i],
+              value: qualification_ids[i],
+              description: careers[i],
+            });
+          }
         })
         .catch(function (error) {
           console.log(error);
@@ -616,7 +439,7 @@ export default {
       this.isEdit = true;
       var self = this;
       axios
-        .post("http://localhost:85/ICPScoreCard/api-self-assessment.php", {
+        .post("http://localhost/ICPScoreCard/api-self-assessment.php", {
           action: "edit",
           selfAssessmentId: selfAssessmentId,
         })
@@ -636,7 +459,7 @@ export default {
       if (confirm("คุณต้องการลบรหัส " + selfAssessmentId + " หรือไม่ ?")) {
         var self = this;
         axios
-          .post("http://localhost:85/ICPScoreCard/api-self-assessment.php", {
+          .post("http://localhost/ICPScoreCard/api-self-assessment.php", {
             action: "delete",
             selfAssessmentId: selfAssessmentId,
           })
@@ -650,10 +473,16 @@ export default {
           });
       }
     },
+    onNext() {
+      this.$router.replace({ name: "FormPivotTable" });
+    },
+    onPrevious() {
+      this.$router.replace({ name: "FormPlan" });
+    },
   },
   created() {
+    this.getQualification();
     this.getAllUser();
-    this.getCareer();
   },
 };
 </script>

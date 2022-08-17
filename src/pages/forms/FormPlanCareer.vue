@@ -31,7 +31,7 @@
                           bg-color="blue-5"
                           standout
                           bottom-slots
-                          v-model="planCareer.Name_Plan_Career"
+                          v-model="planCareer.Career_id"
                           label="แผนอาชีพ"
                           clearable
                         >
@@ -45,25 +45,66 @@
                       </div>
                       <div class="col-md-6 col-xs-12 q-pa-md">
                         <q-select
+                          filled
                           color="blue-5"
-                          v-model="planCareer.Name_Plan_Career"
+                          v-model="planCareer.Career_id"
+                          use-input
+                          input-debounce="0"
                           :options="career.options"
-                          label="เลือกสาขา"
+                          @new-value="createValue"
+                          hint="ระบุอักษร"
+                          emit-value
+                          map-options
                         >
                           <template v-slot:prepend>
                             <q-icon name="work_history" />
+                          </template>
+                          <template v-slot:no-option>
+                            <q-item>
+                              <q-item-section class="text-grey">
+                                ค้นหาไม่พบ
+                              </q-item-section>
+                            </q-item>
                           </template>
                         </q-select>
                       </div>
                     </div>
                     <div class="row">
-                      <div class="col-md-6 col-xs-12 q-pa-md">
-                        <q-btn
-                          label="บันทึก"
-                          type="submit"
-                          color="primary"
-                          icon="save"
-                        />
+                      <div class="col-md-12 col-xs-12 q-pa-md">
+                        <!-- v-model="employee.date" -->
+                        <q-input
+                          filled
+                          label="วัน/เดือน/ปี:ที่กำหนดแผนอาชีพ"
+                          mask="date"
+                          :rules="['date']"
+                        >
+                          <template v-slot:append>
+                            <q-icon name="event" class="cursor-pointer">
+                              <q-popup-proxy
+                                cover
+                                transition-show="scale"
+                                transition-hide="scale"
+                              >
+                                <!-- <q-date v-model="employee.date"> -->
+                                <q-date>
+                                  <div class="row items-center justify-end">
+                                    <q-btn
+                                      v-close-popup
+                                      label="Close"
+                                      color="primary"
+                                      flat
+                                    />
+                                  </div>
+                                </q-date>
+                              </q-popup-proxy>
+                            </q-icon>
+                          </template>
+                        </q-input>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-12 col-xs-12 q-pa-md row justify-center">
+                        <q-btn label="บันทึก" type="submit" color="primary" icon="save" />
                         <q-btn
                           label="ยกเลิก"
                           type="reset"
@@ -72,12 +113,27 @@
                           class="q-ml-sm"
                           icon="clear"
                         />
+                        <q-btn
+                          color="primary"
+                          no-caps
+                          flat
+                          icon="skip_previous"
+                          @click="onPrevious"
+                        />
+                        <q-btn
+                          color="primary"
+                          no-caps
+                          flat
+                          icon="skip_next"
+                          @click="onNext"
+                        />
                       </div>
                     </div>
                     <div class="row">
                       <div class="col-md-12 col-xs-12 q-pa-md">
                         <div class="q-pa-md">
                           <q-table
+                            class="my-sticky-header-table"
                             :grid="$q.screen.xs"
                             title="ข้อมูลส่วนตัว"
                             :rows="planCareers1"
@@ -103,15 +159,32 @@
                               <q-td :props="props">
                                 <q-btn
                                   icon="mode_edit"
-                                  @click="onEdit(props.row)"
+                                  @click="editUser(props.row.Plan_Career_id)"
                                 ></q-btn>
                                 <q-btn
                                   icon="delete"
-                                  @click="onDelete(props.row)"
+                                  @click="
+                                    deleteUser(
+                                      props.row.Plan_Career_id,
+                                      props.row.Name_Plan_Career
+                                    )
+                                  "
                                 ></q-btn>
                               </q-td>
                             </template>
                           </q-table>
+                          <div>
+                            member_id:
+                            {{ this.$store.getters.myMember_id }}
+                            MemberID:
+                            {{ planCareer.Member_id }}
+                            EmployeeID:
+                            {{ planCareer.Employee_id }}
+                            Career:
+                            {{ career.options }}
+                            Plane career:
+                            {{ planCareers1 }}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -135,7 +208,6 @@
 
 <script>
 import axios from "axios";
-import { ref, onMounted } from "vue";
 
 export default {
   name: "FormPlanCareer",
@@ -144,21 +216,49 @@ export default {
       message: "Form Plan Career",
       title: "แผนอาชีพ",
       planCareers: Array,
+      mem_id: Array,
+      emp_id: Array,
       planCareers_: Array,
       careers: Array,
-
       //Plan_Career_id	Employee_id	Name_Plan_Career Description
       planCareer: {
         Plan_Career_id: "",
-        Employee_id: this.$store.getters.myMember_id,
-        Name_Plan_Career: "",
-        isVisible: false,
+        Member_id: "",
+        Employee_id: "",
+        Career_id: "",
       },
-      isEdit: false,
       status: "บันทึก",
+      Ca: {
+        label: Array,
+        id: Array,
+      },
       career: {
         options: [],
       },
+      columns: [
+        {
+          name: "Member_id",
+          label: "MemID",
+          field: (row) => row.Member_id,
+          format: (val) => `${val}`,
+        },
+        {
+          name: "Career_id",
+          label: "CaID",
+          field: (row) => row.Career_id,
+          format: (val) => `${val}`,
+        },
+        {
+          name: "Career",
+          label: "Career",
+          field: (row) => row.career,
+          format: (val) => `${val}`,
+        },
+        { name: "actions", align: "center", label: "Action" },
+      ],
+      planCareers1: [],
+      loading: true,
+      filter: "",
     };
   },
   methods: {
@@ -168,35 +268,27 @@ export default {
       console.log("ยกเลิก");
       // this.planCareer.Plan_Career_id = 0;
       // this.planCareer.Employee_id = 0;
-      this.planCareer.Name_Plan_Career = "";
-      this.planCareer.isVisible = false;
+      this.planCareer.Career_id = "";
     },
-    getAllUser() {
-      console.log(" แสดงข้อมูลทั้งหมด ");
-      var self = this;
-      axios
-        .post("http://localhost:85/ICPScoreCard/api-plan-career.php", {
-          action: "getall",
-        })
-        .then(function (res) {
-          console.log(res);
-          self.planCareers = res.data;
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-    },
+
     getCareer() {
       console.log(" แสดงข้อมูลทั้งหมด ");
       var self = this;
       axios
-        .post("http://localhost:85/ICPScoreCard/api-career.php", {
+        .post("http://localhost/ICPScoreCard/api-career.php", {
           action: "getall",
         })
         .then(function (res) {
           console.log(res);
           self.careers = res.data;
-          self.career.options = res.data.map((item) => item.career);
+          var ids = res.data.map((item) => item.career_id);
+          var careers = res.data.map((item) => item.career);
+          for (var i = 0; i < ids.length; i++) {
+            self.career.options.push({
+              label: careers[i],
+              value: ids[i],
+            });
+          }
         })
         .catch(function (error) {
           console.log(error);
@@ -208,39 +300,37 @@ export default {
         console.log("Form Plan Career:", this.planCareer);
         const newPlanCareer = {
           Plan_Career_id: this.planCareer.Plan_Career_id,
-          Employee_id: this.planCareer.Employee_id,
-          Name_Plan_Career: this.planCareer.Name_Plan_Career,
-          isVisible: this.planCareer.isVisible,
+          Member_id: this.planCareer.Member_id,
+          Career_id: this.planCareer.Career_id,
         };
         this.$emit("saveData", newPlanCareer);
-
         axios
-          .post("http://localhost:85/ICPScoreCard/api-plan-career.php", {
+          .post("http://localhost/ICPScoreCard/api-plan-career.php", {
             action: "insert",
             Plan_Career_id: this.planCareer.Plan_Career_id,
-            Employee_id: this.planCareer.Employee_id,
-            Name_Plan_Career: this.planCareer.Name_Plan_Career,
+            Member_id: this.planCareer.Member_id,
+            Career_id: this.planCareer.Career_id,
           })
           .then((res) => {
             console.log(res);
             this.resetForm();
-            this.getAllUser();
+            this.getUpdate();
           })
           .catch(function (error) {
             console.log(error);
           });
       } else {
         axios
-          .post("http://localhost:85/ICPScoreCard/api-plan-career.php", {
+          .post("http://localhost/ICPScoreCard/api-plan-career.php", {
             action: "update",
             Plan_Career_id: this.planCareer.Plan_Career_id,
-            Employee_id: this.planCareer.Employee_id,
-            Name_Plan_Career: this.planCareer.Name_Plan_Career,
+            Member_id: this.planCareer.Member_id,
+            Career_id: this.planCareer.Career_id,
           })
           .then((response) => {
             console.log(response);
             this.resetForm();
-            this.getAllUser();
+            this.getUpdate();
           })
           .catch(function (error) {
             console.log(error);
@@ -252,146 +342,124 @@ export default {
       this.isEdit = true;
       var self = this;
       axios
-        .post("http://localhost:85/ICPScoreCard/api-plan-career.php", {
+        .post("http://localhost/ICPScoreCard/api-plan-career.php", {
           action: "edit",
           Plan_Career_id: Plan_Career_id,
         })
         .then(function (response) {
           console.log(response);
           self.planCareer.Plan_Career_id = response.data.Plan_Career_id;
-          self.planCareer.Employee_id = response.data.Employee_id;
-          self.planCareer.Name_Plan_Career = response.data.Name_Plan_Career;
-
+          self.planCareer.Member_id = response.data.Member_id;
+          self.planCareer.Career_id = response.data.Career_id;
           self.planCareers_ = response.data;
         })
         .catch(function (error) {
           console.log(error);
         });
     },
-    deleteUser(Plan_Career_id) {
-      if (confirm("คุณต้องการลบรหัส " + Plan_Career_id + " หรือไม่ ?")) {
+    deleteUser(Plan_Career_id, career) {
+      if (confirm("คุณต้องการลบรหัส [" + career + "] หรือไม่ ?")) {
         var self = this;
         axios
-          .post("http://localhost:85/ICPScoreCard/api-plan-career.php", {
+          .post("http://localhost/ICPScoreCard/api-plan-career.php", {
             action: "delete",
             Plan_Career_id: Plan_Career_id,
           })
           .then(function (response) {
             console.log(response);
             self.resetForm();
-            self.getAllUser();
+            self.getUpdate();
           })
           .catch(function (error) {
             console.log(error);
           });
       }
     },
-  },
-  setup() {
-    const loading = ref(true);
-    const planCareers1 = ref([]);
-    const PC = [
-      {
-        Plan_Career_id: "",
-        Employee_id: "",
-        Name_Plan_Career: "",
-      },
-    ];
-    const planCareers1_ = ref([]);
-    const columns = [
-      {
-        name: "Plan_Career_id",
-        required: true,
-        label: "รหัสอาชีพ",
-        align: "center",
-        field: (row) => row.Plan_Career_id,
-        format: (val) => `${val}`,
-        sortable: true,
-      },
-      {
-        name: "Employee_id",
-        label: "รหัสผู้ใช้",
-        align: "center",
-        field: (row) => row.Employee_id,
-        format: (val) => `${val}`,
-        sortable: true,
-      },
-      {
-        name: "Name_Plan_Career",
-        label: "อาชีพ",
-        field: (row) => row.Name_Plan_Career,
-        format: (val) => `${val}`,
-      },
-      { name: "actions", align: "center", label: "Action" },
-    ];
-
-    // Fetch dogs
-    axios
-      .post("http://localhost:85/ICPScoreCard/api-plan-career.php", {
-        action: "getall",
-      })
-      .then(function (res) {
-        console.log("q-table:", res);
-        planCareers1.value = res.data;
-        console.log("planCareers1.value:", planCareers1.value);
-      })
-      .finally(() => {
-        loading.value = false;
-      });
-
-    const onEdit = (row) => {
-      this.status = "Update(อัพเดท)";
-      this.isEdit = true;
+    getUpdate() {
       var self = this;
       axios
-        .post("http://localhost:85/ICPScoreCard/api-plan-career.php", {
-          action: "edit",
-          Plan_Career_id: row.Plan_Career_id,
+        .post("http://localhost/ICPScoreCard/api-plan-career.php", {
+          action: "getAll",
         })
-        .then(function (response) {
-          console.log(response);
-          PC.Plan_Career_id = response.data.Plan_Career_id;
-          PC.Employee_id = response.data.Employee_id;
-          PC.Name_Plan_Career = response.data.Name_Plan_Career;
-          planCareers1_ = response.data;
+        .then(function (res) {
+          console.log("q-table:", res);
+          self.planCareers1 = res.data;
+          console.log("planCareers1:", self.planCareers1);
+        })
+        .finally(() => {
+          self.loading = false;
+        });
+    },
+    getEmployeeID() {
+      console.log(" แสดงข้อมูลทั้งหมด ");
+      var self = this;
+      var memId = parseInt(this.$store.getters.myMember_id);
+      axios
+        .post("http://localhost/ICPScoreCard/api-career.php", {
+          action: "getEmployeeId",
+          member_id: memId,
+        })
+        .then(function (res) {
+          self.mem_id = res.data;
+          console.log("getMemberID:", self.mem_id["id"]);
+          self.planCareer.Member_id = self.mem_id["id"];
         })
         .catch(function (error) {
           console.log(error);
         });
-    };
-    const onDelete = (row) => {
-      if (confirm("คุณต้องการลบรหัส " + row.Plan_Career_id + " หรือไม่ ?")) {
+    },
+    createValue(val, done) {
+      done(val, "add-unique");
+      console.log("val:", val);
+      if (confirm("คุณต้องการเพิ่มอาชีพ [" + val + "] ใหม่หรือไม่ ?")) {
         var self = this;
         axios
-          .post("http://localhost:85/ICPScoreCard/api-plan-career.php", {
-            action: "delete",
-            Plan_Career_id: row.Plan_Career_id,
+          .post("http://localhost/ICPScoreCard/api-career.php", {
+            action: "insert",
+            career: val,
+            member_id: this.planCareer.Member_id,
           })
           .then(function (response) {
             console.log(response);
-            // self.resetForm();
-            // self.getAllUser();
+            self.resetForm();
+            self.getUpdate();
+            // self.getCareer();
           })
           .catch(function (error) {
             console.log(error);
           });
       }
-    };
-    return {
-      filter: ref(""),
-      columns,
-      loading,
-      planCareers1,
-      PC,
-      onEdit,
-      onDelete,
-    };
+    },
+    onNext() {
+      this.$router.replace({ name: "FormQualification" });
+    },
+    onPrevious() {
+      this.$router.replace({ name: "FormComponent" });
+    },
+  },
+  mounted() {
+    this.getUpdate();
   },
   created() {
-    this.getAllUser();
     this.getCareer();
+    this.getUpdate();
+    this.getEmployeeID();
   },
 };
 </script>
 
-<style scoped></style>
+<style lang="sass">
+.my-sticky-header-table
+  height: 310px
+  .q-table__top,
+  .q-table__bottom,
+  thead tr:first-child th
+    background-color: #c1f4cd
+  thead tr th
+    position: sticky
+    z-index: 1
+  thead tr:first-child th
+    top: 0
+  &.q-table--loading thead tr:last-child th
+    top: 48px
+</style>

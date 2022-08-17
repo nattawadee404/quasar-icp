@@ -52,7 +52,7 @@
                           standout
                           bottom-slots
                           v-model="employee.year"
-                          label="ปัจจุบันกำลังศึกษาชั้นปี"
+                          label="ชั้นปีที่กำลังศึกษา"
                           clearable
                         >
                           <template v-slot:prepend>
@@ -67,7 +67,7 @@
                         <q-input
                           filled
                           v-model="employee.date"
-                          label="สำเร็จการศึกษา : วัน/เดือน/ปี"
+                          label="ปีที่สำเร็จการศึกษา : วัน/เดือน/ปี"
                           mask="date"
                           :rules="['date']"
                         >
@@ -223,13 +223,28 @@
                       </div>
                     </div>
                     <div class="row">
-                      <div class="col-md-6 col-xs-12 q-pa-md">
-                        <q-btn
-                          label="บันทึก"
-                          type="submit"
-                          color="primary"
-                          icon="save"
-                        />
+                      <div class="col-md-12 col-xs-12 q-pa-md">
+                        <q-input
+                          color="white"
+                          bg-color="blue-3"
+                          standout
+                          bottom-slots
+                          v-model="employee.disability_type"
+                          label="รายละเอียดความบกพร่อง"
+                          clearable
+                        >
+                          <template v-slot:prepend>
+                            <q-icon name="assist_walker" />
+                          </template>
+                          <template v-slot:append>
+                            <q-icon name="favorite" />
+                          </template>
+                        </q-input>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-12 col-xs-12 q-pa-md row justify-center">
+                        <q-btn label="บันทึก" type="submit" color="primary" icon="save" />
                         <q-btn
                           label="ยกเลิก"
                           type="reset"
@@ -237,6 +252,20 @@
                           flat
                           class="q-ml-sm"
                           icon="clear"
+                        />
+                        <q-btn
+                          color="primary"
+                          no-caps
+                          flat
+                          icon="skip_previous"
+                          @click="onPrevious"
+                        />
+                        <q-btn
+                          color="primary"
+                          no-caps
+                          flat
+                          icon="skip_next"
+                          @click="onNext"
                         />
                       </div>
                     </div>
@@ -247,6 +276,7 @@
                 <div class="col-md-12 col-xs-12 q-pa-md">
                   <div class="q-pa-md">
                     <q-table
+                      class="my-sticky-header-table"
                       :grid="$q.screen.xs"
                       title="ข้อมูลส่วนตัว"
                       :rows="employees1"
@@ -270,13 +300,10 @@
                       </template>
                       <template v-slot:body-cell-actions="props">
                         <q-td :props="props">
-                          <q-btn
-                            icon="mode_edit"
-                            @click="onEdit(props.row)"
-                          ></q-btn>
+                          <q-btn icon="mode_edit" @click="editUser(props.row.id)"></q-btn>
                           <q-btn
                             icon="delete"
-                            @click="onDelete(props.row)"
+                            @click="deleteUser(props.row.id, props.row.name)"
                           ></q-btn>
                         </q-td>
                       </template>
@@ -294,9 +321,7 @@
 
 <script>
 import axios from "axios";
-import { ref, onMounted } from "vue";
 //EP-ID	Name	Study Faculty	University	Disibility type
-
 export default {
   name: "FormComponent",
   data() {
@@ -363,18 +388,86 @@ export default {
         ],
       },
       employee: {
-        id: this.$store.getters.myMember_id,
+        id: "",
+        member_id: this.$store.getters.myMember_id,
         name: this.$store.getters.myName,
+        year: "",
+        date: "",
         degree: "",
         study_faculty: "",
         university: "",
         disability_type: "",
-        year: "",
-        date: "",
-        isVisible: false,
       },
       isEdit: false,
       status: "บันทึก",
+      columns: [
+        {
+          name: "mem_id",
+          required: true,
+          label: "mem_id",
+          align: "center",
+          field: (row) => row.member_id,
+          format: (val) => `${val}`,
+          sortable: true,
+        },
+        {
+          name: "full_name",
+          align: "center",
+          label: "ชื่อ-สกุล",
+          field: (row) => row.full_name,
+          format: (val) => `${val}`,
+          sortable: true,
+        },
+        {
+          name: "year",
+          align: "center",
+          label: "ปีที่กำลังศึกษา",
+          field: (row) => row.year,
+          format: (val) => `${val}`,
+          sortable: true,
+        },
+        {
+          name: "date",
+          align: "center",
+          label: "ปีที่สำเร็จการศึกษา",
+          field: (row) => row.date,
+          format: (val) => `${val}`,
+          sortable: true,
+        },
+        {
+          name: "degree",
+          align: "center",
+          label: "ระดับการศึกษา",
+          field: (row) => row.degree,
+          format: (val) => `${val}`,
+          sortable: true,
+        },
+        {
+          name: "study_faculty",
+          align: "center",
+          label: "สาขา",
+          field: (row) => row.study_faculty,
+          format: (val) => `${val}`,
+        },
+        {
+          name: "university",
+          align: "center",
+          label: "สถาบันการศึกษา",
+          field: (row) => row.university,
+          format: (val) => `${val}`,
+        },
+        {
+          name: "disability_type",
+          align: "center",
+          label: "ความพิการ",
+          field: (row) => row.disability_type,
+          format: (val) => `${val}`,
+        },
+        { name: "actions", align: "center", label: "Action" },
+      ],
+      filter: "",
+      loading: true,
+      employees1: [],
     };
   },
 
@@ -390,7 +483,7 @@ export default {
       console.log(" ตรวจสอบข้อมูลสมาชิค ");
       var self = this;
       axios
-        .post("http://localhost:85/ICPScoreCard/api-member.php", {
+        .post("http://localhost/ICPScoreCard/api-member.php", {
           action: "checkMember",
           user: this.input.username,
           pass: this.input.password,
@@ -434,8 +527,7 @@ export default {
       return (val && val.length > 3) || "ค่าสั้นเกินไป";
     },
     isEmail(val) {
-      const emailPattern =
-        /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
+      const emailPattern = /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
       return emailPattern.test(val) || "กรุณาใส่อีเมลที่ถูกต้อง";
     },
     switchTypeForm() {
@@ -448,58 +540,45 @@ export default {
       this.passwordFieldType = this.visibility ? "text" : "password";
       this.visibilityIcon = this.visibility ? "visibility_off" : "visibility";
     },
-    onSubmit() {
-      console.log("click submit");
-    },
-    onReset() {
-      this.name = null;
-      this.password = null;
-    },
     resetForm() {
       this.status = "บันทึก";
       this.isEdit = false;
       console.log("ยกเลิกการบันทึกข้อมูล");
-      // this.employee.id = 0;
-      // this.employee.name = "";
+      this.employee.id = "";
+      this.employee.member_id = "";
+      this.employee.name = "";
+      this.employee.year = "";
+      this.employee.date = "";
+      this.employee.degree = "";
       this.employee.study_faculty = "";
       this.employee.university = "";
       this.employee.disability_type = "";
-      this.employee.isVisible = false;
-    },
-    getAllUser() {
-      console.log(" แสดงข้อมูลทั้งหมด ");
-      var self = this;
-      axios
-        .post("http://localhost:85/ICPScoreCard/api.php", {
-          action: "getall",
-        })
-        .then(function (res) {
-          console.log(res);
-          self.employees = res.data;
-          // self.setup(self.employees);
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
     },
     submitForm() {
       if (!this.isEdit) {
         console.log("บันทึกข้อมูล:", this.employee);
         const newEmployee = {
           id: this.employee.id,
+          member_id: this.employee.member_id,
           name: this.employee.name,
+          year: this.employee.year,
+          date: this.employee.date,
+          degree: this.employee.degree,
           study_faculty: this.employee.study_faculty,
           university: this.employee.university,
           disibility_type: this.employee.disability_type,
-          isVisible: this.employee.isVisible,
         };
         this.$emit("saveData", newEmployee);
 
         axios
-          .post("http://localhost:85/ICPScoreCard/api.php", {
+          .post("http://localhost/ICPScoreCard/api.php", {
             action: "insert",
             id: this.employee.id,
+            member_id: this.employee.member_id,
             name: this.employee.name,
+            year: this.employee.year,
+            date: this.employee.date,
+            degree: this.employee.degree,
             study_faculty: this.employee.study_faculty,
             university: this.employee.university,
             disibility_type: this.employee.disability_type,
@@ -507,17 +586,21 @@ export default {
           .then((res) => {
             console.log(res);
             this.resetForm();
-            this.getAllUser();
+            this.getUpdate();
           })
           .catch(function (error) {
             console.log(error);
           });
       } else {
         axios
-          .post("http://localhost:85/ICPScoreCard/api.php", {
+          .post("http://localhost/ICPScoreCard/api.php", {
             action: "update",
             id: this.employee.id,
+            member_id: this.employee.member_id,
             name: this.employee.name,
+            year: this.employee.year,
+            date: this.employee.date,
+            degree: this.employee.degree,
             study_faculty: this.employee.study_faculty,
             university: this.employee.university,
             disability_type: this.employee.disability_type,
@@ -525,7 +608,7 @@ export default {
           .then((response) => {
             console.log(response);
             this.resetForm();
-            this.getAllUser();
+            this.getUpdate();
           })
           .catch(function (error) {
             console.log(error);
@@ -537,14 +620,18 @@ export default {
       this.isEdit = true;
       var self = this;
       axios
-        .post("http://localhost:85/ICPScoreCard/api.php", {
+        .post("http://localhost/ICPScoreCard/api.php", {
           action: "edit",
           id: id,
         })
         .then(function (response) {
           console.log(response);
           self.employee.id = response.data.id;
+          self.employee.member_id = response.data.member_id;
           self.employee.name = response.data.name;
+          self.employee.year = response.data.year;
+          self.employee.date = response.data.date;
+          self.employee.degree = response.data.degree;
           self.employee.study_faculty = response.data.study_faculty;
           self.employee.university = response.data.university;
           self.employee.disability_type = response.data.disability_type;
@@ -554,148 +641,61 @@ export default {
           console.log(error);
         });
     },
-    deleteUser(id) {
-      if (confirm("คุณต้องการลบรหัส " + id + " หรือไม่ ?")) {
+    deleteUser(id, name) {
+      if (confirm("คุณต้องการลบรหัส " + name + " หรือไม่ ?")) {
         var self = this;
         axios
-          .post("http://localhost:85/ICPScoreCard/api.php", {
+          .post("http://localhost/ICPScoreCard/api.php", {
             action: "delete",
             id: id,
           })
           .then(function (response) {
             console.log(response);
             self.resetForm();
-            self.getAllUser();
+            self.getUpdate();
           })
           .catch(function (error) {
             console.log(error);
           });
       }
     },
-    resetForm1() {
-      this.employee = this.emp;
-    },
-  },
-  //chart
-  setup() {
-    const loading = ref(true);
-    const employees1 = ref([]);
-    const emp = [
-      {
-        id: "",
-        name: "",
-        study_faculty: "",
-        university: "",
-        disability_type: "",
-      },
-    ];
-
-    const columns = [
-      {
-        name: "id",
-        required: true,
-        label: "รหัส",
-        align: "center",
-        field: (row) => row.id,
-        format: (val) => `${val}`,
-        sortable: true,
-      },
-      {
-        name: "name",
-        align: "center",
-        label: "ชื่อ-สกุล",
-        field: (row) => row.name,
-        format: (val) => `${val}`,
-        sortable: true,
-      },
-      {
-        name: "study_faculty",
-        align: "center",
-        label: "สาขา",
-        field: (row) => row.study_faculty,
-        format: (val) => `${val}`,
-      },
-      {
-        name: "university",
-        align: "center",
-        label: "สถาบันการศึกษา",
-        field: (row) => row.university,
-        format: (val) => `${val}`,
-      },
-      {
-        name: "disability_type",
-        align: "center",
-        label: "ความพิการ",
-        field: (row) => row.disability_type,
-        format: (val) => `${val}`,
-      },
-      { name: "actions", align: "center", label: "Action" },
-    ];
-
-    // Fetch dogs
-    axios
-      .post("http://localhost:85/ICPScoreCard/api.php", {
-        action: "getall",
-      })
-      .then(function (res) {
-        console.log("q-table:", res);
-        employees1.value = res.data;
-        console.log("employees1.value:", employees1.value);
-      })
-      .finally(() => {
-        loading.value = false;
-      });
-    const onEdit = (row) => {
-      this.status = "Update(อัพเดท)";
-      this.isEdit = true;
+    getUpdate() {
       var self = this;
       axios
-        .post("http://localhost:85/ICPScoreCard/api.php", {
-          action: "edit",
-          id: row.id,
+        .post("http://localhost/ICPScoreCard/api.php", {
+          action: "getall",
         })
-        .then(function (response) {
-          console.log(response);
-          emp.id.value = response.data.id;
-          emp.name.value = response.data.name;
-          emp.study_faculty.value = response.data.study_faculty;
-          emp.university.value = response.data.university;
-          emp.disability_type.value = response.data.disability_type;
+        .then(function (res) {
+          console.log("q-table:", res);
+          self.employees1 = res.data;
+          console.log("employees1.value:", self.employees1.value);
         })
         .finally(() => {
-          loading.value = false;
+          self.loading = false;
         });
-    };
-    const onDelete = (row) => {
-      if (confirm("คุณต้องการลบช้อมูลของ [ " + row.name + " ] หรือไม่ ?")) {
-        var self = this;
-        axios
-          .post("http://localhost:85/ICPScoreCard/api.php", {
-            action: "delete",
-            id: row.id,
-          })
-          .then(function (response) {
-            console.log(response);
-            // self.resetForm();
-            // self.getAllUser();
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-      }
-    };
-    return {
-      filter: ref(""),
-      columns,
-      loading,
-      employees1,
-      emp,
-      onEdit,
-      onDelete,
-    };
+    },
+    onNext() {
+      this.$router.replace({ name: "FormPlanCareer" });
+    },
+    onPrevious() {},
   },
-  created() {
-    this.getAllUser();
+  mounted() {
+    this.getUpdate();
   },
 };
 </script>
+<style lang="sass">
+.my-sticky-header-table
+  height: 310px
+  .q-table__top,
+  .q-table__bottom,
+  thead tr:first-child th
+    background-color: #c1f4cd
+  thead tr th
+    position: sticky
+    z-index: 1
+  thead tr:first-child th
+    top: 0
+  &.q-table--loading thead tr:last-child th
+    top: 48px
+</style>

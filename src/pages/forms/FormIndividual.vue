@@ -19,11 +19,7 @@
               </q-card-section>
               <div class="row">
                 <div class="col-md-12 col-xs-12 q-pa-md">
-                  <q-form
-                    @submit="login()"
-                    @reset="onReset"
-                    class="q-gutter-md"
-                  >
+                  <q-form @submit="login()" @reset="onReset" class="q-gutter-md">
                     <div class="row">
                       <div class="col-md-12 col-xs-12 q-pa-md">
                         <q-input
@@ -142,12 +138,7 @@
                     </div>
                     <div class="row">
                       <div class="col-md-6 col-xs-12 q-pa-md">
-                        <q-btn
-                          label="บันทึก"
-                          type="submit"
-                          color="primary"
-                          icon="save"
-                        />
+                        <q-btn label="บันทึก" type="submit" color="primary" icon="save" />
                         <q-btn
                           label="ยกเลิก"
                           type="reset"
@@ -215,18 +206,12 @@
                         <td>{{ row.university }}</td>
                         <td>{{ row.disability_type }}</td>
                         <td>
-                          <button
-                            class="btn btn-primary"
-                            @click="editUser(row.id)"
-                          >
+                          <button class="btn btn-primary" @click="editUser(row.id)">
                             Edit
                           </button>
                         </td>
                         <td>
-                          <button
-                            class="btn btn-warning"
-                            @click="deleteUser(row.id)"
-                          >
+                          <button class="btn btn-warning" @click="deleteUser(row.id)">
                             Delete
                           </button>
                         </td>
@@ -366,7 +351,7 @@ export default {
       console.log(" ตรวจสอบข้อมูลสมาชิค ");
       var self = this;
       axios
-        .post("http://localhost:85/ICPScoreCard/api-member.php", {
+        .post("http://localhost/ICPScoreCard/api-member.php", {
           action: "checkMember",
           user: this.input.username,
           pass: this.input.password,
@@ -410,8 +395,7 @@ export default {
       return (val && val.length > 3) || "ค่าสั้นเกินไป";
     },
     isEmail(val) {
-      const emailPattern =
-        /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
+      const emailPattern = /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
       return emailPattern.test(val) || "กรุณาใส่อีเมลที่ถูกต้อง";
     },
     switchTypeForm() {
@@ -446,7 +430,7 @@ export default {
       console.log(" แสดงข้อมูลทั้งหมด ");
       var self = this;
       axios
-        .post("http://localhost:85/ICPScoreCard/api.php", {
+        .post("http://localhost/ICPScoreCard/api.php", {
           action: "getall",
         })
         .then(function (res) {
@@ -473,7 +457,7 @@ export default {
         this.$emit("saveData", newEmployee);
 
         axios
-          .post("http://localhost:85/ICPScoreCard/api.php", {
+          .post("http://localhost/ICPScoreCard/api.php", {
             action: "insert",
             id: this.employee.id,
             name: this.employee.name,
@@ -491,7 +475,7 @@ export default {
           });
       } else {
         axios
-          .post("http://localhost:85/ICPScoreCard/api.php", {
+          .post("http://localhost/ICPScoreCard/api.php", {
             action: "update",
             id: this.employee.id,
             name: this.employee.name,
@@ -514,7 +498,7 @@ export default {
       this.isEdit = true;
       var self = this;
       axios
-        .post("http://localhost:85/ICPScoreCard/api.php", {
+        .post("http://localhost/ICPScoreCard/api.php", {
           action: "edit",
           id: id,
         })
@@ -535,7 +519,7 @@ export default {
       if (confirm("คุณต้องการลบรหัส " + id + " หรือไม่ ?")) {
         var self = this;
         axios
-          .post("http://localhost:85/ICPScoreCard/api.php", {
+          .post("http://localhost/ICPScoreCard/api.php", {
             action: "delete",
             id: id,
           })

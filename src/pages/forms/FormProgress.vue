@@ -21,13 +21,20 @@
             v-for="(field, index) in formSteps[activeStep].fields"
             :key="'field' + index"
           >
-            <input
-              type="text"
-              :class="{ 'wrong-input': !field.valid }"
-              v-model="field.value"
-              required
-            />
-            <label class="input-label">{{ field.label }}</label>
+            <div class="row">
+              <div class="col-md-10 col-xs-12 q-pa-md">
+                <label class="input-label">{{ field.label }}</label>
+              </div>
+              <div class="col-md-2 col-xs-12 q-pa-md">
+                <input
+                  type="checkbox"
+                  :checked="checked"
+                  :class="{ 'wrong-input': !field.valid }"
+                  v-model="field.value"
+                  required
+                />
+              </div>
+            </div>
           </div>
         </div>
         <div class="actions">
@@ -44,6 +51,22 @@
             done
           </button>
         </div>
+        <div>
+          <q-btn
+            color="primary"
+            no-caps
+            flat
+            icon="skip_previous"
+            @click="onPrevious"
+          />
+          <q-btn
+            color="primary"
+            no-caps
+            flat
+            icon="skip_next"
+            @click="onNext"
+          />
+        </div>
       </section>
     </article>
   </div>
@@ -57,22 +80,46 @@ export default {
       animation: "animate-in",
       formSteps: [
         {
-          title: "HTML Quiz",
+          title: "ข้อมูลส่วนตัว",
           fields: [
             {
-              label: "What does HTML stand for?",
+              label: "1.กำหนดชื่อ-สกุล",
               value: "",
               valid: true,
               pattern: /.+/,
             },
             {
-              label: "Who is making the Web standards?",
+              label: "2.กำหนดชั้นปีที่กำลังศึกษา",
               value: "",
               valid: true,
               pattern: /.+/,
             },
             {
-              label: "Element for the largest heading?",
+              label: "3.กำหนดปีที่สำเร็จการศึกษา",
+              value: "",
+              valid: true,
+              pattern: /.+/,
+            },
+            {
+              label: "4.กำหนดระดับการศึกษา",
+              value: "",
+              valid: true,
+              pattern: /.+/,
+            },
+            {
+              label: "5.กำหนดสาขาวิชา",
+              value: "",
+              valid: true,
+              pattern: /.+/,
+            },
+            {
+              label: "6.กำหนดสถาบันการศึกษา",
+              value: "",
+              valid: true,
+              pattern: /.+/,
+            },
+            {
+              label: "7.กำหนดสถานะความพิการ",
               value: "",
               valid: true,
               pattern: /.+/,
@@ -80,22 +127,10 @@ export default {
           ],
         },
         {
-          title: "CSS Quiz",
+          title: "ข้อมูลอาชีพ",
           fields: [
             {
-              label: "What does CSS stand for?",
-              value: "",
-              valid: true,
-              pattern: /.+/,
-            },
-            {
-              label: "HTML tag for an internal style sheet?",
-              value: "",
-              valid: true,
-              pattern: /.+/,
-            },
-            {
-              label: "Property for the background color?",
+              label: "กำหนดอาชีพเป้าหมาย",
               value: "",
               valid: true,
               pattern: /.+/,
@@ -103,25 +138,82 @@ export default {
           ],
         },
         {
-          title: "Your data",
+          title: "ข้อมูลคุณสมบัติ/ทักษะ",
           fields: [
             {
-              label: "Your first name?",
+              label: "กำหนดคุณสมบัติแต่ละอาชีพ",
               value: "",
               valid: true,
               pattern: /.+/,
             },
-            { label: "Your last name?", value: "", valid: true, pattern: /.+/ },
             {
-              label: "Your email?",
+              label: "กำหนดระดับการพัฒนา",
               value: "",
               valid: true,
-              pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+              pattern: /.+/,
+            },
+            {
+              label: "กำหนดเป้าหมายการพัฒนา",
+              value: "",
+              valid: true,
+              pattern: /.+/,
             },
           ],
         },
         {
-          title: "Thank you for participating!",
+          title: "ข้อมูลแผนการพัฒนาตนเอง",
+          fields: [
+            {
+              label: "แผนการเรียนรู้ภาคทฤษฏี",
+              value: "",
+              valid: true,
+              pattern: /.+/,
+            },
+            {
+              label: "แผนการเรียนรู้ภาคปฏิบัติ",
+              value: "",
+              valid: true,
+              pattern: /.+/,
+            },
+          ],
+        },
+        {
+          title: "ข้อมูลการประเมินการพัฒนาตนเอง",
+          fields: [
+            {
+              label: "ประเมินตนเอง เดือนมกราคม",
+              value: "",
+              valid: true,
+              pattern: /.+/,
+            },
+            {
+              label: "ประเมินตนเอง เดือนเมษายน",
+              value: "",
+              valid: true,
+              pattern: /.+/,
+            },
+            {
+              label: "ประเมินตนเอง เดือนกรกฏาคม",
+              value: "",
+              valid: true,
+              pattern: /.+/,
+            },
+            {
+              label: "ประเมินตนเอง เดือนตุลาคม",
+              value: "",
+              valid: true,
+              pattern: /.+/,
+            },
+            {
+              label: "ประเมินตนเอง เดือนธันวาคม",
+              value: "",
+              valid: true,
+              pattern: /.+/,
+            },
+          ],
+        },
+        {
+          title: "ขอบคุณสำหรับการรายงานความก้าวหน้า",
         },
       ],
     };
@@ -152,6 +244,10 @@ export default {
           this.animation = "";
         }, 400);
       }
+    },
+    onNext() {},
+    onPrevious() {
+      this.$router.replace({ name: "FormPivotTable" });
     },
   },
 };

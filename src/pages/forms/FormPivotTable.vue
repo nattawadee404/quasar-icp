@@ -53,6 +53,24 @@
                       </div>
                     </div>
                     <div class="row">
+                      <div class="col-md-12 col-xs-12 q-pa-md row justify-center">
+                        <q-btn
+                          color="primary"
+                          no-caps
+                          flat
+                          icon="skip_previous"
+                          @click="onPrevious"
+                        />
+                        <q-btn
+                          color="primary"
+                          no-caps
+                          flat
+                          icon="skip_next"
+                          @click="onNext"
+                        />
+                      </div>
+                    </div>
+                    <div class="row">
                       <div class="col-md-3 col-xs-12 q-pa-md">
                         <table class="table table-bordered table-striped">
                           <thead>
@@ -523,7 +541,7 @@ export default {
       console.log(" get employees ");
       var self = this;
       axios
-        .post("http://localhost:85/ICPScoreCard/api-pivot.php", {
+        .post("http://localhost/ICPScoreCard/api-pivot.php", {
           action: "getEmployees",
           id: this.$store.getters.myMember_id,
         })
@@ -539,7 +557,7 @@ export default {
       console.log(" get qualifications ");
       var self = this;
       axios
-        .post("http://localhost:85/ICPScoreCard/api-pivot.php", {
+        .post("http://localhost/ICPScoreCard/api-pivot.php", {
           action: "getPlanCareer",
           employeeId: this.employee.id,
         })
@@ -555,7 +573,7 @@ export default {
       console.log(" get qualifications ");
       var self = this;
       axios
-        .post("http://localhost:85/ICPScoreCard/api-pivot.php", {
+        .post("http://localhost/ICPScoreCard/api-pivot.php", {
           action: "getQualification",
           Plan_Career_id: this.planCareer.Plan_Career_id,
         })
@@ -572,7 +590,7 @@ export default {
       console.log(" get plans ");
       var self = this;
       axios
-        .post("http://localhost:85/ICPScoreCard/api-pivot.php", {
+        .post("http://localhost/ICPScoreCard/api-pivot.php", {
           action: "getPlan",
           qualificationId: this.qualification.qualificationId,
         })
@@ -588,7 +606,7 @@ export default {
       console.log(" get assessments ");
       var self = this;
       axios
-        .post("http://localhost:85/ICPScoreCard/api-pivot.php", {
+        .post("http://localhost/ICPScoreCard/api-pivot.php", {
           action: "getAssessment",
           qualificationId: this.qualification.qualificationId,
         })
@@ -612,9 +630,7 @@ export default {
             "Goal: ",
             res.data.map((item) => parseInt(item.goal))
           );
-          self.chartSelfAssessment.goal = res.data.map((item) =>
-            parseInt(item.goal)
-          );
+          self.chartSelfAssessment.goal = res.data.map((item) => parseInt(item.goal));
           console.log(
             "Month: ",
             res.data.map((item) => item.month)
@@ -636,7 +652,7 @@ export default {
       console.log(" get assessments ");
       var self = this;
       axios
-        .post("http://localhost:85/ICPScoreCard/api-pivot.php", {
+        .post("http://localhost/ICPScoreCard/api-pivot.php", {
           action: "getAllAssessment",
         })
         .then(function (res) {
@@ -654,23 +670,17 @@ export default {
             "Level: ",
             res.data.map((item) => item.level)
           );
-          self.chartAllSelfAssessment.level = res.data.map(
-            (item) => item.level
-          );
+          self.chartAllSelfAssessment.level = res.data.map((item) => item.level);
           console.log(
             "Goal: ",
             res.data.map((item) => parseInt(item.goal))
           );
-          self.chartAllSelfAssessment.goal = res.data.map((item) =>
-            parseInt(item.goal)
-          );
+          self.chartAllSelfAssessment.goal = res.data.map((item) => parseInt(item.goal));
           console.log(
             "Month: ",
             res.data.map((item) => item.month)
           );
-          self.chartAllSelfAssessment.month = res.data.map(
-            (item) => item.month
-          );
+          self.chartAllSelfAssessment.month = res.data.map((item) => item.month);
           console.log(
             "Selft Assessment: ",
             res.data.map((item) => parseInt(item.assessment))
@@ -730,6 +740,12 @@ export default {
         },
       ];
       console.log("series:", this.series);
+    },
+    onNext() {
+      this.$router.replace({ name: "FormProgress" });
+    },
+    onPrevious() {
+      this.$router.replace({ name: "FormSelfAssessment" });
     },
   },
   computed: {

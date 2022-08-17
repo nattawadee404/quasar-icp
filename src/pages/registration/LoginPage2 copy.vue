@@ -7,7 +7,11 @@
       >
         <div class="column q-pa-lg">
           <div class="row">
-            <q-card square class="shadow-24" style="width: 400px; height: 540px">
+            <q-card
+              square
+              class="shadow-24"
+              style="width: 400px; height: 540px"
+            >
               <q-card-section class="bg-deep-purple-7">
                 <h4 class="text-h5 text-white q-my-md">{{ title }}</h4>
               </q-card-section>
@@ -149,7 +153,8 @@ export default {
       return (val && val.length > 3) || "ค่าสั้นเกินไป";
     },
     isEmail(val) {
-      const emailPattern = /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
+      const emailPattern =
+        /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
       return emailPattern.test(val) || "กรุณาใส่อีเมลที่ถูกต้อง";
     },
     submit() {

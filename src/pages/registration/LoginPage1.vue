@@ -30,7 +30,7 @@
                     >
                       เข้าระบบ/Login
                     </div> -->
-                    <q-form @submit="login()" @reset="onReset" class="q-gutter-md">
+                    <q-form @submit="OnLogin()" @reset="onRegister()" class="q-gutter-md">
                       <q-input
                         ref="email"
                         square
@@ -105,8 +105,9 @@
                       </q-input>
 
                       <div>
-                        <q-btn label="Login" type="submit" color="primary" />
+                        <q-btn icon="login" label="Login" type="submit" color="primary" />
                         <q-btn
+                          icon="assignment_ind"
                           label="SIGN UP"
                           type="reset"
                           color="primary"
@@ -143,6 +144,7 @@ export default {
       btnLabel: "กดปุ่ม",
       visibility: false,
       visibilityIcon: "visibility",
+      emp_id: Array,
       input: {
         username: "",
         password: "",
@@ -156,7 +158,7 @@ export default {
   },
 
   methods: {
-    login() {
+    OnLogin() {
       if (this.input.username != "" && this.input.password != "") {
         this.checkMember();
       } else {
@@ -164,10 +166,10 @@ export default {
       }
     },
     checkMember() {
-      console.log(" ตรวจสอบข้อมูลสมาชิก ");
+      console.log(" ตรวจสอบข้อมูลสมาชิค ");
       var self = this;
       axios
-        .post("http://localhost:85/ICPScoreCard/api-member.php", {
+        .post("http://localhost/ICPScoreCard/api-member.php", {
           action: "checkMember",
           user: this.input.username,
           pass: this.input.password,
@@ -251,6 +253,19 @@ export default {
       this.name = null;
       this.password = null;
     },
+    onRegister() {
+      this.$router.replace({ name: "RegistrationPage" });
+    },
+    createState() {
+      this.$store.commit("setMyAuthenticate", false);
+      this.$store.commit("setMyMember_id", 0);
+      this.$store.commit("setMyEmployee_id", 0);
+      this.$store.commit("setMyName", "");
+      this.$store.commit("setMyStatus", "");
+    },
+  },
+  created() {
+    this.createState();
   },
 };
 </script>
