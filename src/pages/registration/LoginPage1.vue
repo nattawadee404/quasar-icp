@@ -131,7 +131,7 @@
 import axios from "axios";
 
 export default {
-  name: "LoginPage2",
+  name: "LoginPage1",
   data() {
     return {
       title: "เข้าสู่ระบบ/Login",
